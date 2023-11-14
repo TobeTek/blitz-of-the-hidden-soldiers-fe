@@ -1,0 +1,5 @@
+--debug
+--js bin/main.js
+--main Main
+--library heaps
+-w -WDeprecated
