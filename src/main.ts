@@ -1,5 +1,17 @@
-import { createApp } from 'vue'
-import './style.css'
-import App from './App.vue'
+import { createApp } from "vue";
+import App from "@/App.vue";
+import router from "@/router";
+import "tsconfig-paths";
+import "vue-toastification/dist/index.css";
+import Toast, { PluginOptions } from "vue-toastification";
 
-createApp(App).mount('#app')
+const options: PluginOptions = {
+  transition: "Vue-Toastification__fade",
+  maxToasts: 20,
+  newestOnTop: true,
+  hideProgressBar: true,
+};
+
+let app = createApp(App).use(router).use(Toast, options);
+app.mount("#app");
+

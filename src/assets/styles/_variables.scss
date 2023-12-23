@@ -1,0 +1,21 @@
+$black-ui: #05010d;
+$white-ui: #fff;
+
+$light-purple-ui: #9017EF;
+$deep-plum-ui: #700D6A;
+$dark-burgundy-ui: #680B11;
+$crimson-red-ui: #CF0512;
+
+$bright-gray-ui: #b7b8c1;
+$muted-charcoal-ui: #7b7d87;
+$charcoal-gray-ui: #5B5C62;
+$dark-charcoal-ui: #393A41;
+$midnight-gray-ui: #26262C;
+$midnight-black-ui: #131316;
+$graphite-gray-ui: #1C1C21;
+$midnight-blue-ui: #05010D;
+
+
+@function hex-with-alpha($color, $alpha) {
+  @return unquote("#{$color}#{$alpha}");
+}

@@ -1,0 +1,92 @@
+@charset "utf-8";
+@import "_base.scss";
+
+.underline-link {
+  display: inline-block;
+  position: relative;
+  text-decoration: none;
+  color: $white-ui; /* Initial text color */
+}
+
+.underline-link:hover{
+    color: $bright-gray-ui;
+}
+
+.underline-link::before {
+  content: "";
+  position: absolute;
+  bottom: -5px; /* Adjust position as needed */
+  left: 0;
+  width: 0;
+  height: 2px;
+  border-radius: 2px;
+  background-color: $white-ui; /* Initial line color */
+  transition: width 0.3s ease-in-out;
+}
+
+.underline-link:hover::before {
+  width: 100%; /* Animate line width on hover */
+}
+
+.underline-link:active {
+  color: $dark-charcoal-ui; /* Change text color on click */
+}
+
+.underline-link:active::before {
+  background-color: $dark-charcoal-ui; /* Change line color on click */
+}
+
+hr {
+  border: none;
+  height: 1px;
+  background-color: $muted-charcoal-ui;
+  width: 60%;
+  margin: 40px auto;
+  transition: background-color 0.3s ease;
+}
+
+hr:hover {
+  background-color: $charcoal-gray-ui; /* Color to change on hover */
+}
+
+// Glow button
+.glow-button::before {
+    content: "";
+    position: absolute;
+    top: -2500px;
+    left: -2500px;
+    width: 500%;
+    height: 500%;
+    background: linear-gradient(
+      to bottom right,
+      rgba(255, 255, 255, 0.2) 0%,
+      rgba(255, 255, 255, 0.5) 50%,
+      rgba(255, 255, 255, 0.2) 100%
+    );
+    opacity: 0;
+    animation: sheen 7s infinite alternate;
+  }
+  
+  @keyframes sheen {
+    to {
+      top: 0;
+      left: 100%;
+      opacity: 0.5;
+    }
+  }
+
+  body {
+    font-size: 16px; /* Default font size */
+  }
+
+  @media (max-width: 768px) {
+    body {
+      font-size: 14px; /* Font size for screens up to 768px wide */
+    }
+  }
+
+  @media (max-width: 480px) {
+    body {
+      font-size: 12px; /* Font size for screens up to 480px wide */
+    }
+  }

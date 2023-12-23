@@ -1,0 +1,25 @@
+@charset 'utf-8';
+
+@import "_fonts.scss";
+@import "_reset.scss";
+@import "_variables.scss";
+
+// Update Bulma's global variables
+$family-sans-serif: "DM Mono", sans-serif;
+$grey-dark: $dark-charcoal-ui;
+$grey-light: $charcoal-gray-ui;
+$primary: $midnight-blue-ui;
+$link: $white-ui;
+// $primary: $deep-plum-ui;
+$danger: $crimson-red-ui;
+
+// $widescreen-enabled: false;
+// $fullhd-enabled: false;
+
+$body-background-color: $midnight-black-ui;
+$control-border-width: 2px;
+$input-border-color: transparent;
+$input-shadow: none;
+
+// Import Bulma
+@import "../node_modules/bulma/bulma.sass";
