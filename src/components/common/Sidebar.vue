@@ -4,7 +4,9 @@
       <!-- Left side -->
       <div class="level-left ml-3">
         <div class="level-item">
-          <img src="@/assets/bothsLogo.svg?inline" alt="BoTHS Logo" />
+          <a href="/">
+            <img src="@/assets/bothsLogo.svg?inline" alt="BoTHS Logo" />
+          </a>
         </div>
       </div>
 
@@ -110,12 +112,16 @@
         <div class="level">
           <div class="level-left">
             <div class="level-item pl-6">
-              <img
-                src="@/assets/icons/faq.svg?inline"
-                class="action-icon pr-4"
-              />
+              <a
+                href="https://boths.gitbook.io/blitz-of-the-hidden-soldiers-wiki/"
+              >
+                <img
+                  src="@/assets/icons/faq.svg?inline"
+                  class="action-icon pr-4"
+                />
 
-              <span class="action-text">Wiki</span>
+                <span class="action-text">Wiki</span>
+              </a>
             </div>
           </div>
         </div>
@@ -124,11 +130,11 @@
 
     <div id="sidebar-bottom-actions">
       <div class="level is-justify-content-center">
-        <a class="sidebar-action">
+        <a class="sidebar-action" href="https://twitter.com/onambatech">
           <img src="@/assets/icons/twitterX.svg?inline" class="action-icon" />
         </a>
 
-        <a class="sidebar-action">
+        <a class="sidebar-action" href="https://discord.gg/umajFF99">
           <img src="@/assets/icons/discord.svg?inline" class="action-icon" />
         </a>
       </div>
@@ -142,6 +148,10 @@ import PlayerProfileOverview from "@/components/common/PlayerProfileOverview.vue
 
 <style scoped lang="scss">
 @import "src/assets/styles/_variables.scss";
+a {
+  padding: 0;
+  margin: 0;
+}
 
 #sidebar-actions {
   margin-top: 3em;

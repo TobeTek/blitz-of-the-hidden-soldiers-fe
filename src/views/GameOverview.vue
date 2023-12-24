@@ -4,13 +4,20 @@
       <Sidebar></Sidebar>
     </div>
     <div class="column is-mobile" id="main">
-      <UserOverview></UserOverview>
+      <UserOverview
+        @start-create-game="() => (isCreateGameModalActive = true)"
+      ></UserOverview>
       <br />
       <hr />
       <br />
       <PieceCollections></PieceCollections>
     </div>
   </div>
+
+  <CreateGameModal
+    :class="{ 'is-active': isCreateGameModalActive }"
+    @close="() => (isCreateGameModalActive = false)"
+  ></CreateGameModal>
 
   <PreloadSpinner :isLoading="isLoading" />
   <MobileNotSupported></MobileNotSupported>
@@ -21,23 +28,21 @@ import UserOverview from "@/components/gameOverview/UserOverview.vue";
 import PieceCollections from "@/components/gameOverview/PieceCollections.vue";
 import PreloadSpinner from "@/components/common/PreloadSpinner.vue";
 import Sidebar from "@/components/common/Sidebar.vue";
+import CreateGameModal from "@/components/composition/CreateGameModal.vue";
+
 import { ref, nextTick, onMounted } from "vue";
-import { useToast } from "vue-toastification";
+
 import MobileNotSupported from "@/components/common/MobileNotSupported.vue";
 
-
 const isLoading = ref(true);
+const isCreateGameModalActive = ref(false);
+
 onMounted(() => {
   nextTick(() => {
     setTimeout(() => {
       isLoading.value = false;
     }, 1000);
   });
-
-
-//   const toast = useToast();
-//   toast("I'm a toast!");
-//   toast.success("I'm a toast!");
 });
 </script>
 

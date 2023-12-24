@@ -1,66 +1,32 @@
 <template>
-  <div id="container">
-    <center>
-      <div id="chess">
-        <div id="wrap">
-          <!-- Player White Panel -->
-          <div id="white-panel" class="chess-panel white">
-            <div class="chess-panel-header">
-              <h2>White</h2>
-            </div>
-            <div class="taken-pieces"></div>
-          </div>
-
-          <!-- Chess Board -->
-          <table id="chess-board">
-            <tr class="row" v-for="row in 8" :key="row">
-              <td
-                class="col chess-square"
-                v-for="col in 8"
-                :key="col"
-                :class="{
-                  white: (row + col) % 2 == 0,
-                  black: (row + col) % 2 == 1,
-                }"
-                :data-row="row"
-                :data-col="col"
-              >
-                <span class="is-white"><i class="fa fa-question"></i></span>
-              </td>
-            </tr>
-          </table>
-        </div>
-
-        <!-- Player Black Panel -->
-        <div id="black-panel" class="chess-panel black">
-          <div class="chess-panel-header">
-            <h2 class="white-text">Black</h2>
-          </div>
-          <div class="taken-pieces"></div>
-        </div>
-      </div>
-    </center>
-  </div>
+  <div
+  :class="{'white':isWhite, 'black':!isWhite}"  
+  class="square"
+    data-nth="1"
+    data-row-num="2"
+    data-square-color="black"
+    data-col-letter="A"
+    data-col="0"
+    data-cell="A0"
+  ></div>
 </template>
 
-<script setup>
-import ChessSquare from "@/components/playGame/ChessSquare.vue";
+<script setup lang="ts">
+import { defineProps } from "vue";
 
-const board = Array(8)
-  .fill()
-  .map(() => Array(8).fill(null)); // Create an 8x8 board filled with null
+defineProps({
+  isVisible: {
+    type: Boolean,
+    default: false,
+  },
+  isWhite:{
+    type: Boolean,
+    required: true
+  }
+});
 </script>
 
 <style scoped lang="scss">
-@import "src/assets/styles/_variables.scss";
-#chess-board {
-  width: 100%;
-  border: 3px solid $graphite-gray-ui;
-}
-
-</style>
-
-<!-- <style scoped lang="scss">
 @import "src/assets/styles/_variables.scss";
 * {
   transition: all 0.2s linear !important;
@@ -181,4 +147,4 @@ const board = Array(8)
     width: 80px;
   }
 }
-</style> -->
+</style>

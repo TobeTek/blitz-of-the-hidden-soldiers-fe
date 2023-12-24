@@ -6,8 +6,9 @@
         :class="{ 'is-secondary': !isPrimary, 'is-primary': isPrimary }"
       >
         <div class="lead-text">
-            <a href="" class="underline-link">{{ leadText }}
-            </a>
+          <a @click="$emit(clickEvent)" class="underline-link"
+            >{{ leadText }}
+          </a>
         </div>
         <div class="description">{{ description }}</div>
       </div>
@@ -26,6 +27,10 @@ defineProps({
   },
   description: {
     type: String,
+  },
+  clickEvent: {
+    type: String,
+    required: true,
   },
   isPrimary: {
     type: Boolean,
@@ -61,10 +66,10 @@ defineProps({
   padding-left: 20px;
   align-items: center;
   //   justify-content: center;
-  
+
   color: $white-ui;
   overflow: hidden;
-  
+
   font-size: x-large;
 
   @media (max-width: 768px) {
@@ -105,6 +110,4 @@ defineProps({
     );
   }
 }
-
-
 </style>

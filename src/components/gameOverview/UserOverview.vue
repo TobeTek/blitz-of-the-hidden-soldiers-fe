@@ -3,14 +3,27 @@
     <div class="tile is-ancestor p-5">
       <div class="tile is-mobile is-4 is-vertical is-parent">
         <div class="tile is-child">
-          <Panel :leadText="'Create New Game'" :isPrimary="true"></Panel>
+          <Panel
+            :leadText="'Create New Game'"
+            :isPrimary="true"
+            :clickEvent="'start-create-game'"
+            @start-create-game="$emit('start-create-game')"
+          ></Panel>
         </div>
         <div class="tile is-child">
-          <Panel :leadText="'Tournaments'"></Panel>
+          <Panel
+            :leadText="'Tournaments'"
+            :clickEvent="'view-tournaments'"
+            @view-tournaments="$emit('view-tournaments')"
+          ></Panel>
         </div>
 
         <div class="tile is-child">
-          <Panel :leadText="'View Active Games'"></Panel>
+          <Panel
+            :leadText="'View Active Games'"
+            :clickEvent="'view-active-games'"
+            @view-active-games="$emit('view-active-games')"
+          ></Panel>
         </div>
       </div>
       <div class="tile is-mobile is-parent">

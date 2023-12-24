@@ -20,11 +20,6 @@ const routes = [
     name: "PlayGame",
     component: PlayGame,
   },
-  {
-    path: "/about",
-    name: "About",
-    component: About,
-  },
 ];
 
 const router = createRouter({
