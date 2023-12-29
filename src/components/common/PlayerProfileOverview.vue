@@ -41,6 +41,7 @@ const store = usePlayerWalletStore();
 const isWalletConnected = store.isWalletConnected;
 
 const _onMounted = async () => {
+  return;
   let provider;
   let signer;
   if (window.ethereum == null) {
