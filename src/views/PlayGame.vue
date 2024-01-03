@@ -4,7 +4,7 @@
       <Sidebar></Sidebar>
     </div>
     <div class="column is-8">
-      <chessboard/>
+      Lorem ipsum dolor, sit amet consectetur adipisicing elit. Harum nihil et iste nam eum, sapiente distinctio vitae. Ipsa rem quam magni necessitatibus, magnam, officia sunt omnis totam natus, aspernatur et!
     </div>
     <div class="column is-2">
       <h2>
@@ -28,8 +28,6 @@ import Sidebar from "@/components/common/Sidebar.vue";
 import MobileNotSupportedVue from "@/components/common/MobileNotSupported.vue";
 
 // import ChessBoard from "@/components/playGame/ChessBoard.vue";
-import chessboard from 'vue-chessboard'
-import 'vue-chessboard/dist/vue-chessboard.css'
 
 import { ref, nextTick, onMounted } from "vue";
 
