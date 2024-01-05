@@ -70,9 +70,9 @@
                   type="number"
                   min="1"
                   max="8"
-                  v-model="piece.position.x"
+                  v-model="piece.pieceCoords.x"
                   @input="
-                    (event) => (pieces[indx].position.x = event.target.value)
+                    (event) => (pieces[indx].pieceCoords.x = event.target.value)
                   "
                   required
                 />
@@ -84,9 +84,9 @@
                   type="number"
                   min="1"
                   max="8"
-                  v-model="piece.position.y"
+                  v-model="piece.pieceCoords.y"
                   @input="
-                    (event) => (pieces[indx].position.y = event.target.value)
+                    (event) => (pieces[indx].pieceCoords.y = event.target.value)
                   "
                   required
                 />
@@ -126,61 +126,48 @@ import { GameManagerContract } from "@/ethContracts/gameManager";
 import { PawnTokens, KingTokens, QueenTokens } from "@/types/pieces";
 import { useToast } from "vue-toastification";
 import * as _ from "lodash";
+import { usePlayerWalletStore } from "@/stores/playerWallet";
+import { ChessGameContract } from "@/ethContracts/chessGame";
 
 const toast = useToast();
+const props = defineProps({
+  gameAddress: {
+    type: String,
+    required: true,
+    default: ethers.ZeroAddress,
+  },
+  playerAddress: {
+    type: String,
+    required: true,
+  },
+});
+const emit = defineEmits(["positions-selected"]);
+
 const pieceClassOptions = Object.keys(PieceClass).filter((x) =>
   Number.isNaN(Number(x))
 );
 const playerType = ChessPiecePlayer.WHITE;
-const pieceSelection = reactive<PieceSelection[]>([
-  {
-    tokenId: KingTokens.STANDARD_KING,
-    pieceClass: PieceClass.KING,
-    count: 1,
-  },
-  {
-    tokenId: QueenTokens.STANDARD_QUEEN,
-    pieceClass: PieceClass.QUEEN,
-    count: 1,
-  },
-  {
-    tokenId: KnightTokens.STANDARD_KNIGHT,
-    pieceClass: PieceClass.KNIGHT,
-    count: 1,
-  },
-  {
-    tokenId: BishopTokens.STANDARD_BISHOP,
-    pieceClass: PieceClass.BISHOP,
-    count: 1,
-  },
-  {
-    tokenId: RookTokens.STANDARD_ROOK,
-    pieceClass: PieceClass.ROOK,
-    count: 1,
-  },
-  {
-    tokenId: PawnTokens.STANDARD_PAWN,
-    pieceClass: PieceClass.PAWN,
-    count: 5,
-  },
-]);
-
+const pieceSelection = ref<PieceSelection[]>([]);
 const pieces = reactive<ChessPiece[]>([]);
 
 onMounted(() => {
-  buildPieces();
+  buildPieces().catch();
 });
 
-function buildPieces() {
-  pieceSelection.forEach((selection) => {
-    const uniquePieces = Array(selection.count)
+async function buildPieces() {
+  pieceSelection.value = await GameManagerContract.getPlayerSelection(
+    props.gameAddress,
+    props.playerAddress
+  );
+  pieceSelection.value.forEach((selection) => {
+    const uniquePieces = Array(Number(selection.count))
       .fill(null)
       .map((_) => ({
         tokenId: selection.tokenId,
         pieceClass: selection.pieceClass,
         piecePlayer: playerType,
-        position: { x: 1, y: 1 },
-        isCaptured: false,
+        pieceCoords: { x: 1, y: 1 },
+        isDead: false,
       }));
     pieces.push(...uniquePieces);
   });
@@ -195,24 +182,19 @@ function buildPieces() {
   }
 }
 
-const props = defineProps({
-  gameAddress: {
-    type: String,
-    required: true,
-    default: ethers.ZeroAddress,
-  },
-});
-const emit = defineEmits(["pieces-selected"]);
-
 async function setPiecePositions() {
   if (!validatePiecePositions()) return;
+  const chessGameInstance = await ChessGameContract.buildInstance(
+    props.gameAddress
+  );
+  chessGameInstance.placePieces(pieces);
+  emit('positions-selected')
 }
 
 function validatePiecePositions() {
   const seenPieceIds = new Array<string>();
   const seenPositions = new Array<Coordinate>();
 
-  console.log(pieces);
   for (let index = 0; index < pieces.length; index++) {
     const piece = pieces[index];
 
@@ -224,26 +206,26 @@ function validatePiecePositions() {
     seenPieceIds.push(piece.pieceId);
 
     // Check for duplicate coordinates
-    const position = piece.position;
-    console.log(seenPositions, position);
+    const pieceCoords = piece.pieceCoords;
     if (
-      seenPositions.filter((p) => position.x === p.x && position.y === p.y)
-        .length
+      seenPositions.filter(
+        (p) => pieceCoords.x === p.x && pieceCoords.y === p.y
+      ).length
     ) {
       toast.error("Duplicate piece positions not allowed");
       return false;
     }
-    seenPositions.push(position);
+    seenPositions.push(pieceCoords);
 
     // XXX: Validate coordinates are 'sensible'
     // This should be enforced on the smart contract and circuit as well
     let isInsensibleCoordinate = false;
     switch (playerType) {
       case ChessPiecePlayer.WHITE.valueOf():
-        isInsensibleCoordinate ||= position.y > 3;
+        isInsensibleCoordinate ||= pieceCoords.y > 3;
         break;
       case ChessPiecePlayer.BLACK.valueOf():
-        isInsensibleCoordinate ||= position.y < 6;
+        isInsensibleCoordinate ||= pieceCoords.y < 6;
         break;
       default:
         break;

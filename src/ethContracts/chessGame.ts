@@ -1,8 +1,12 @@
 import { PlayerWalletStore, usePlayerWalletStore } from "@/stores/playerWallet";
+import { ChessPiece } from "@/types";
 import { PieceSelection } from "@/types/pieces";
 import { AddressLike, Contract, ethers } from "ethers";
 import { doc, getDoc } from "firebase/firestore";
 import { useFirestore } from "vuefire";
+import { calculatePublicCommitment } from "@/types/pieces";
+import { EthChessPiece } from "@/types";
+import chessGameAbi from "./chessGameAbi.json";
 
 export class ChessGameContract {
   _instance: Contract;
@@ -17,18 +21,17 @@ export class ChessGameContract {
   static async buildInstance(gameAddress: string): Promise<ChessGameContract> {
     const store = usePlayerWalletStore() as PlayerWalletStore;
     let signer = await store.provider.getSigner();
-    const instance = new Contract(gameAddress, chessGameAbi, signer);
-    return new ChessGameContract(gameAddress, instance);
+    const instance = new Contract(gameAddress, chessGameAbi.abi, signer);
+    const chessGame = new ChessGameContract(gameAddress, instance);
+    await chessGame.getPlayerWhite();
+    await chessGame.getPlayerBlack();
+    return chessGame;
   }
 
   constructor(gameAddress: string, instance: Contract) {
     this._instance = instance;
     this._address = gameAddress;
   }
-
-  async makeMove(piece: ChessPiece, targetPosition: Coordinate) {}
-
-  async reportPositions() {}
 
   async getPieceIds() {
     if (!this._whitePieceIds.length) {
@@ -64,11 +67,55 @@ export class ChessGameContract {
     return this._playerBlack;
   }
 
-  async getPlayerHasPlacedPieces(player: string): Promise<boolean>{
-    return await this._instance.playerHasPlacedPieces(player)
+  async getPlayerHasPlacedPieces(player: string): Promise<boolean> {
+    return await this._instance.playerHasPlacedPieces(player);
   }
 
-  async getAllPositions(): Promise<ChessPiece[]> {}
+  async getAllPieces() {
+    const whitePieces: EthChessPiece[] = [];
+    const { white: whitePieceIds, black: blackPieceIds } =
+      await this.getPieceIds();
+    for (const pieceId of whitePieceIds) {
+      const piece: EthChessPiece = await this._instance.playerPieces(
+        this._playerWhite,
+        pieceId
+      );
+      whitePieces.push(piece);
+    }
+
+    const blackPieces: EthChessPiece[] = [];
+    for (const pieceId of blackPieceIds) {
+      const piece: EthChessPiece = await this._instance.playerPieces(
+        this._playerBlack,
+        pieceId
+      );
+      blackPieces.push(piece);
+    }
+
+    return { white: whitePieces, black: blackPieces };
+  }
+
+  async placePieces(pieces: ChessPiece[]) {
+    const ethPieces = await calculateCommitments(pieces);
+    console.log("EthPieces: ", ethPieces);
+    await this._instance.placePieces(ethPieces);
+  }
+
+  async makeMove(piece: ChessPiece, targetPosition: Coordinate) {}
+
+  async reportPositions() {}
+}
+
+async function calculateCommitments(pieces: ChessPiece[]) {
+  const ethPieces: EthChessPiece[] = [];
+
+  for (const piece of pieces) {
+    ethPieces.push({
+      publicCommitment: await calculatePublicCommitment(piece),
+      ...piece,
+    });
+  }
+  return ethPieces;
 }
 
 export function createPieceMotionProof() {}
@@ -76,5 +123,3 @@ export function createPieceMotionProof() {}
 export function createRevealPositionProof() {}
 
 export function createPlayerVisionProof() {}
-
-const chessGameAbi = require("./chessGameAbi.json").abi;

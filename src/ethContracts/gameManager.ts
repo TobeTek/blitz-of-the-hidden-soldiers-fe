@@ -1,10 +1,7 @@
 import { PlayerWalletStore, usePlayerWalletStore } from "@/stores/playerWallet";
 import { PieceSelection } from "@/types/pieces";
 import { AddressLike, Contract, ethers } from "ethers";
-import {
-  doc,
-  getDoc
-} from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { useFirestore } from "vuefire";
 
 export class GameManagerContract {
@@ -96,6 +93,22 @@ export class GameManagerContract {
       (obj, index) =>
         index === result.findIndex((o) => o.gameAddress === obj.gameAddress)
     );
+  }
+
+  static async getPlayerSelection(
+    gameAddress: string,
+    playerAddress: string
+  ): Promise<PieceSelection[] | undefined> {
+    const gameManager = await GameManagerContract.getInstance();
+    const filter = gameManager.filters.PlayerSelectedPieces(
+      gameAddress,
+      playerAddress
+    );
+    const [event] = await gameManager.queryFilter(filter, 0, "latest");
+    if (event) {
+      return event.args[2].map((log)=> ({pieceClass: log[0], tokenId:log[1], count:log[2]}));
+    }
+    return undefined;
   }
 }
 

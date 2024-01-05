@@ -4,9 +4,9 @@ import { ChessPiece, ChessPiecePlayer, ChessPieceTypes } from "@/types/index";
 export async function calculatePublicCommitment(p: ChessPiece): Promise<string> {
   return await mimcHashMulti([
     p.pieceId,
-    p.pieceType,
-    p.position.x,
-    p.position.y,
+    p.pieceClass,
+    p.pieceCoords.x,
+    p.pieceCoords.y,
   ]);
 }
 

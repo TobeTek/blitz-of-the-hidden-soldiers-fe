@@ -5,11 +5,22 @@
     </div>
     <div class="column">
       <section>
-        <ChessBoard v-if="piecesSet"></ChessBoard>
-        <SelectPiecePositions v-else></SelectPiecePositions>
+        <ChessBoard
+          v-if="playerHasPlacedPieces"
+          :playerHasPlacedPieces="playerHasPlacedPieces"
+          :opponentHasPlacedPieces="opponentHasPlacedPieces"
+          :whitePieces="whitePieces"
+          :blackPieces="blackPieces"
+        ></ChessBoard>
+        <SelectPiecePositions
+          v-else
+          :gameAddress="gameAddress"
+          :playerAddress="walletStore.walletAddress"
+          @positions-selected="postSetPositions"
+        ></SelectPiecePositions>
       </section>
     </div>
-    <div v-if="piecesSet" class="column is-2" id="player-info">
+    <div v-if="playerHasPlacedPieces" class="column is-2" id="player-info">
       <CapturedPieces></CapturedPieces>
     </div>
   </div>
@@ -24,25 +35,32 @@ import PreloadSpinner from "@/components/common/PreloadSpinner.vue";
 import Sidebar from "@/components/common/Sidebar.vue";
 import MobileNotSupportedVue from "@/components/common/MobileNotSupported.vue";
 import ChessBoard from "@/components/playGame/ChessBoard.vue";
-import { ref, nextTick, onMounted, watch } from "vue";
+import { ref, nextTick, onMounted, watch, reactive } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import CapturedPieces from "@/components/playGame/CapturedPieces.vue";
 import { PlayerWalletStore, usePlayerWalletStore } from "@/stores/playerWallet";
 import SelectPiecePositions from "@/components/playGame/SelectPiecePositions.vue";
 
-import { useChessGameStore} from "@/stores/chessGame";
+import { useChessGameStore } from "@/stores/chessGame";
 import { ChessGameContract } from "@/ethContracts/chessGame";
+import { EthChessPiece } from "@/types";
 
 const walletStore = usePlayerWalletStore() as PlayerWalletStore;
 const gameStore = useChessGameStore();
 const router = useRouter();
 const route = useRoute();
-const piecesSet = ref(false);
+const playerHasPlacedPieces = ref(false);
+const opponentHasPlacedPieces = ref(false);
+const opponentAddress = ref();
 
-let chessGame: ChessGameContract;
+const gameAddress = route.params.gameAddress;
+const whitePieces = reactive<EthChessPiece[]>([]);
+const blackPieces = reactive<EthChessPiece[]>([]);
+
+let chessGameInstance: ChessGameContract;
 
 onMounted(() => {
-  fetchGame(route.params.gameAddress);
+  // fetchGame(route.params.gameAddress);
 });
 
 watch(
@@ -52,18 +70,53 @@ watch(
   }
 );
 
+watch(
+  () => walletStore.loading,
+  async (isLoading: boolean) => {
+    if (!isLoading) {
+      await fetchGame(route.params.gameAddress);
+    }
+  }
+);
+
 async function fetchGame(gameAddress: string) {
-  // Fetch game information
-  // Load pieces
-  // Load captured pieces
-  console.log('Fetching Game:', gameAddress);
-  chessGame = new ChessGameContract(gameAddress);
+  console.log("Fetching Game:", gameAddress);
+  chessGameInstance = await ChessGameContract.buildInstance(gameAddress);
+  opponentAddress.value = deteremineOpponentAddress(
+    walletStore.walletAddress,
+    chessGameInstance._playerWhite,
+    chessGameInstance._playerBlack
+  );
+  playerHasPlacedPieces.value =
+    await chessGameInstance.getPlayerHasPlacedPieces(walletStore.walletAddress);
+  opponentHasPlacedPieces.value =
+    await chessGameInstance.getPlayerHasPlacedPieces(opponentAddress.value);
+
+  const result = await chessGameInstance.getAllPieces();
+  console.log("Pieces: ", result);
+  whitePieces.push(...result.white);
+  blackPieces.push(...result.black);
+}
+
+function deteremineOpponentAddress(
+  playerAddress: string,
+  playerWhite: string,
+  playerBlack: string
+) {
+  if (playerAddress === playerWhite) {
+    return playerBlack;
+  } else {
+    return playerWhite;
+  }
+}
+
+function postSetPositions() {
+  playerHasPlacedPieces.value = true;
 }
 </script>
 
 <style scoped lang="scss">
 @import "src/assets/styles/_variables.scss";
-
 
 .columns {
   width: 100vw;

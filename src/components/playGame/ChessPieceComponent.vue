@@ -12,17 +12,7 @@
 <script setup lang="ts">
 import { ref, defineProps, onMounted, defineEmits } from "vue";
 
-type Coordinate = {
-  x: number;
-  y: number;
-};
-
-type ChessPiece = {
-  pieceId: string | null;
-  pieceType: string;
-  piecePlayer: "white" | "black";
-  position: Coordinate;
-};
+import { ChessPiece, Coordinate}from "@/types";
 
 const emit = defineEmits(['piece-selected', 'piece-deselected'])
 const chessPiece = ref(null);
@@ -36,10 +26,10 @@ const props = defineProps({
 
 onMounted(() => {
   const piece = props.piece as ChessPiece;
-
+  console.log("ChessPieceComponent: ",piece);
   const OFFSET = 4;
-  let transformX = (piece.position.x - 1) * OFFSET + 0.2;
-  let transformY = (8 - piece.position.y) * OFFSET - 0.2;
+  let transformX = (Number(piece.pieceCoords.x) - 1) * OFFSET + 0.2;
+  let transformY = (8 - Number(piece.pieceCoords.y)) * OFFSET - 0.2;
   chessPiece.value.style.transform = `translate(${transformX}rem, ${transformY}rem)`;
 });
 

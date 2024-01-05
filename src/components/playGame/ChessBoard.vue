@@ -1,9 +1,9 @@
 <template>
   <div id="wrap">
     <div id="chess-pieces">
-      <template v-for="piece in pieces" :key="piece.position">
+      <template v-for="piece in pieces" :key="piece.pieceCoords">
         <ChessPieceComponent
-          v-if="!piece.isCaptured"
+          v-if="!piece.isDead"
           :piece="piece"
           @piece-selected="clickPiece($event)"
           @piece-deselected="deselectPiece($event)"
@@ -45,11 +45,11 @@ const getPlayerPieces = () => whitePieces;
 const getOpponentPieces = () => blackPieces;
 
 const props = defineProps({
-  playerPieces: {
+  whitePieces: {
     type: Array,
     required: true,
   },
-  opponentPieces: {
+  blackPieces: {
     type: Array,
     required: true,
   },
@@ -59,49 +59,11 @@ const props = defineProps({
   },
 });
 
-let whitePieces = ref<ChessPiece[]>([
-  {
-    pieceType: "pawn",
-    piecePlayer: "black",
-    position: { x: 1, y: 1 },
-    isCaptured: false,
-  },
-  {
-    pieceType: "queen",
-    piecePlayer: "black",
-    position: { x: 3, y: 2 },
-    isCaptured: false,
-  },
-  {
-    pieceType: "king",
-    piecePlayer: "black",
-    position: { x: 3, y: 7 },
-    isCaptured: false,
-  },
-]);
+let whitePieces = ref<ChessPiece[]>([]);
 
-let blackPieces = ref<ChessPiece[]>([
-  {
-    pieceType: "pawn",
-    piecePlayer: "white",
-    position: { x: 1, y: 2 },
-    isCaptured: false,
-  },
-  {
-    pieceType: "knight",
-    piecePlayer: "white",
-    position: { x: 4, y: 5 },
-    isCaptured: false,
-  },
-  {
-    pieceType: "bishop",
-    piecePlayer: "white",
-    position: { x: 7, y: 5 },
-    isCaptured: false,
-  },
-]);
+let blackPieces = ref<ChessPiece[]>([]);
 
-const pieces = computed(() => [...whitePieces.value, ...blackPieces.value]);
+const pieces = computed(() => [...props.whitePieces, ...props.blackPieces]);
 
 let selectedPiece = {} as ChessPiece;
 
@@ -117,10 +79,10 @@ async function clickPiece(piece: ChessPiece) {
   if (
     !isObjectEmpty(selectedPiece) &&
     selectedPiece.piecePlayer != piece.piecePlayer &&
-    !isEqCoordinate(selectedPiece.position, piece.position)
+    !isEqCoordinate(selectedPiece.pieceCoords, piece.pieceCoords)
   ) {
     // Move piece
-    makeMove(piece.position.y, piece.position.x);
+    makeMove(piece.pieceCoords.y, piece.pieceCoords.x);
     capturePiece(piece);
   } else {
     selectedPiece = piece;
@@ -144,9 +106,9 @@ function makeMove(row: number, col: number) {
 
   const isValidMove = ChessMoveValidator.isValidMove(
     selectedPiece,
-    selectedPiece.position,
+    selectedPiece.pieceCoords,
     targetPos,
-    pieces.value.filter((p) => !p.isCaptured).map((p) => p.position)
+    pieces.value.filter((p) => !p.isDead).map((p) => p.pieceCoords)
   );
 
   if (isValidMove) {
@@ -158,10 +120,10 @@ function makeMove(row: number, col: number) {
   }
 
   const piece = pieces.value.filter(
-    (p) => p.position === selectedPiece.position
+    (p) => p.pieceCoords === selectedPiece.pieceCoords
   )[0];
 
-  piece.position = targetPos;
+  piece.pieceCoords = targetPos;
 
   selectedPiece = {} as ChessPiece;
 }
@@ -171,7 +133,7 @@ function isObjectEmpty(obj: Object) {
 }
 
 function capturePiece(piece: ChessPiece) {
-  piece.isCaptured = true;
+  piece.isDead = true;
 }
 </script>
 
@@ -186,9 +148,6 @@ function capturePiece(piece: ChessPiece) {
 }
 
 #chess-pieces {
-  // position: fixed;
-  // bottom: 0;
-  // left: 0;
   width: 100%;
   height: auto;
   z-index: 10;

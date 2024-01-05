@@ -19,9 +19,13 @@ export type ChessPiece = {
   tokenId: string;
   pieceClass: string;
   piecePlayer: ChessPiecePlayer;
-  position: Coordinate;
-  isCaptured: boolean;
+  pieceCoords: Coordinate;
+  isDead: boolean;
 };
+
+export type EthChessPiece = Pick<ChessPiece, 'pieceId' | 'tokenId' | 'pieceCoords' | 'pieceClass' | 'isDead'> &{
+  publicCommitment: string;
+}
 
 export enum ChessPieceTypes {
   KING = "king",

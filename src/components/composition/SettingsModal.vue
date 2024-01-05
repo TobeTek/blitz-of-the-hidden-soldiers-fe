@@ -156,7 +156,7 @@ async function testSnarkjs() {
       x: 1,
       y: 1,
     },
-    isCaptured: false,
+    isDead: false,
   };
   const targetPos = { x: 2, y: 1 };
   const prevCommit = await calculatePublicCommitment(p);
@@ -165,7 +165,7 @@ async function testSnarkjs() {
       prevPublicCommitment: prevCommit,
       pieceId: p.pieceId,
       pieceType: p.pieceType,
-      pieceInitialPosition: [p.position.x, p.position.y],
+      pieceInitialPosition: [p.pieceCoords.x, p.pieceCoords.y],
       pieceTargetPosition: [targetPos.x, targetPos.y],
     },
 

@@ -7,9 +7,6 @@
             <h1>Select your Pieces for the Battle!</h1>
 
             <h3>Game: {{ fmtShortAddress(props.gameAddress) }}</h3>
-            <p class="has-text-centered">
-              <small>This action can only be performed once!</small>
-            </p>
           </div>
         </header>
         <section class="modal-card-body">
