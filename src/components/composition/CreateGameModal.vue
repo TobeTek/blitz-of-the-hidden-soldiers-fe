@@ -8,21 +8,44 @@
           </p>
         </header>
         <section class="modal-card-body">
-          <div class="field">
-            <label class="label">Opponent Address</label>
+          <label class="label">Opponent Address: </label>
+          <div class="field has-addons">
+            <br />
+            <div class="control is-expanded">
+              <input
+                class="input"
+                type="text"
+                placeholder="0x00...123"
+                v-model="opponentAddress"
+                required
+              />
+            </div>
             <div class="control">
-              <input class="input" type="text" placeholder="0x00...123" />
+              <button class="button is-outline" @click="pasteFromClipboard">
+                <span class="icon"><i class="fa fa-clipboard"></i></span>
+                <span>Paste</span>
+              </button>
             </div>
           </div>
 
           <div class="field">
             <div class="control has-text-centered">
-              <label class="radio p-2">
-                <input type="radio" name="question" />
+              <label class="radio is-large p-2">
+                <input
+                  type="radio"
+                  name="question"
+                  :value="ChessPiecePlayer.WHITE"
+                  v-model="playerType"
+                />
                 Play as white
               </label>
-              <label class="radio p-2">
-                <input type="radio" name="question" />
+              <label class="radio is-large p-2">
+                <input
+                  type="radio"
+                  name="question"
+                  :value="ChessPiecePlayer.BLACK"
+                  v-model="playerType"
+                />
                 Play as black
               </label>
             </div>
@@ -33,7 +56,7 @@
             class="button is-success is-fullwidth"
             @click="initCreateGame()"
           >
-            Create game
+            Create Game
           </button>
         </footer>
       </div>
@@ -41,7 +64,7 @@
   </BaseModal>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {
   getFirestore,
   getDoc,
@@ -52,44 +75,59 @@ import {
   doc,
 } from "firebase/firestore";
 import BaseModal from "@/components/composition/BaseModal.vue";
-import { getGameManagerInstance } from "@/ethContracts/gameManager";
 import firebase from "@/firebaseInit";
-import { inject, provide } from "vue";
-import { usePlayerWalletStore } from "@/stores/playerWallet";
+import { inject, provide, ref, reactive } from "vue";
+import { PlayerWalletStore, usePlayerWalletStore } from "@/stores/playerWallet";
 import { Contract, ethers } from "ethers";
+import { useToast } from "vue-toastification";
+import { GameManagerContract } from "@/ethContracts/gameManager";
+import { ChessPieceTypes, ChessPiecePlayer, isValidAddress } from "@/types";
 
-const db = getFirestore(firebase);
+const toast = useToast();
+const store = usePlayerWalletStore() as PlayerWalletStore;
+const opponentAddress = ref("");
+const playerType = ref<ChessPiecePlayer>(ChessPiecePlayer.WHITE);
+
+const emit = defineEmits([
+  "post-create-game"
+]);
+
+async function pasteFromClipboard() {
+  if (navigator.clipboard) {
+    try {
+      const clipboardText = await navigator.clipboard.readText();
+      opponentAddress.value = clipboardText;
+    } catch (error: any) {
+      toast.error("Failed to read clipboard contents: ", error);
+    }
+  } else {
+    toast.error("Clipboard API not supported in this browser.");
+  }
+}
 
 async function initCreateGame() {
-  const collectionRef = collection(
-    db,
-    "eth-deployments/smart-contracts/chains"
-  );
-  const docRef = doc(db, "eth-deployments/smart-contracts/");
-  const store = usePlayerWalletStore();
-  const result = await getDoc(docRef);
-  let dData = result.data();
-  const chainInformation = dData[store.walletChainId][0];
-  console.log(chainInformation);
+  try {
+    const { value: opponent } = opponentAddress;
 
-  console.log(chainInformation);
+    if (!isValidAddress(opponent)) {
+      toast.error("Invalid opponent address");
+      return;
+    }
 
-  let provider = new ethers.BrowserProvider(window.ethereum);
-  let signer = await provider.getSigner();
+    const playerWhite =
+      playerType.value === ChessPiecePlayer.WHITE
+        ? store.walletAddress
+        : opponent;
+    const playerBlack =
+      playerType.value === ChessPiecePlayer.BLACK
+        ? store.walletAddress
+        : opponent;
 
-  const GameManager = new Contract(
-    chainInformation.contracts["GameManager"].address,
-    chainInformation.contracts["GameManager"].abi,
-    signer
-  );
-
-  console.log(await GameManager.chessCollectionAddress());
-  console.log(
-    await GameManager.updateChessCollectionAddress(signer.getAddress())
-  );
-  console.log(await GameManager.owner());
-  let r = await GameManager.unlockPlayerTokens(signer.getAddress(), 1, 20);
-  console.log(r);
+    await GameManagerContract.createNewGame(playerWhite, playerBlack);
+  } catch (error: any) {
+    toast.error(error.message);
+  }
+  emit('post-create-game'); 
 }
 </script>
 

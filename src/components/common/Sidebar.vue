@@ -12,7 +12,7 @@
 
       <!-- Right side -->
       <div class="level-right">
-        <a href="">
+        <a @click="() => (isSettingsModalActive = true)">
           <img
             class="icon--top"
             src="@/assets/icons/gear.svg?inline"
@@ -140,10 +140,20 @@
       </div>
     </div>
   </div>
+
+  <SettingsModal
+    :class="{ 'is-active': isSettingsModalActive }"
+    @close="() => (isSettingsModalActive = false)"
+    @save-settings="() => (isSettingsModalActive = false)"
+  ></SettingsModal>
 </template>
 
 <script setup>
 import PlayerProfileOverview from "@/components/common/PlayerProfileOverview.vue";
+import SettingsModal from "@/components/composition/SettingsModal.vue";
+import { ref } from "vue";
+
+const isSettingsModalActive = ref(false);
 </script>
 
 <style scoped lang="scss">

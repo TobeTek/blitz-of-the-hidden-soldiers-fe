@@ -1,184 +1,196 @@
 <template>
-  <div id="container">
-    <center>
-      <div id="chess">
-        <div id="wrap">
-          <!-- Player White Panel -->
-          <div id="white-panel" class="chess-panel white">
-            <div class="chess-panel-header">
-              <h2>White</h2>
-            </div>
-            <div class="taken-pieces"></div>
-          </div>
-
-          <!-- Chess Board -->
-          <table id="chess-board">
-            <tr class="row" v-for="row in 8" :key="row">
-              <td
-                class="col chess-square"
-                v-for="col in 8"
-                :key="col"
-                :class="{
-                  white: (row + col) % 2 == 0,
-                  black: (row + col) % 2 == 1,
-                }"
-                :data-row="row"
-                :data-col="col"
-              >
-                <span class="is-white"><i class="fa fa-question"></i></span>
-              </td>
-            </tr>
-          </table>
-        </div>
-
-        <!-- Player Black Panel -->
-        <div id="black-panel" class="chess-panel black">
-          <div class="chess-panel-header">
-            <h2 class="white-text">Black</h2>
-          </div>
-          <div class="taken-pieces"></div>
-        </div>
-      </div>
-    </center>
+  <div id="wrap">
+    <div id="chess-pieces">
+      <template v-for="piece in pieces" :key="piece.position">
+        <ChessPieceComponent
+          v-if="!piece.isCaptured"
+          :piece="piece"
+          @piece-selected="clickPiece($event)"
+          @piece-deselected="deselectPiece($event)"
+        />
+      </template>
+    </div>
+    <table id="chess-board">
+      <tr v-for="row in boardCoordinateRange()">
+        <BoardSquare
+          v-for="col in 8"
+          :pieceClass="'pawn'"
+          :playerType="'white'"
+          :row="row"
+          :col="col"
+          @click="makeMove(row, col)"
+        ></BoardSquare>
+      </tr>
+    </table>
   </div>
 </template>
 
-<script setup>
-import ChessSquare from "@/components/playGame/ChessSquare.vue";
+<script setup lang="ts">
+import BoardSquare from "@/components/playGame/BoardSquare.vue";
+import ChessPieceComponent from "@/components/playGame/ChessPieceComponent.vue";
+import {
+  ChessMoveValidator,
+  ChessPiece,
+  Coordinate,
+  isEqCoordinate,
+} from "@/components/playGame/chessMoveValidator";
+import { useToast } from "vue-toastification";
+import { ref, computed } from "vue";
+import { usePlayerWalletStore } from "@/stores/playerWallet";
+import { defineProps, defineEmits } from "vue";
 
-const board = Array(8)
-  .fill()
-  .map(() => Array(8).fill(null)); // Create an 8x8 board filled with null
+const toast = useToast();
+const playerType = ref("white");
+const getPlayerPieces = () => whitePieces;
+const getOpponentPieces = () => blackPieces;
+
+const props = defineProps({
+  playerPieces: {
+    type: Array,
+    required: true,
+  },
+  opponentPieces: {
+    type: Array,
+    required: true,
+  },
+  playerHasPlacedPieces: {
+    type: Boolean,
+    required: true,
+  },
+});
+
+let whitePieces = ref<ChessPiece[]>([
+  {
+    pieceType: "pawn",
+    piecePlayer: "black",
+    position: { x: 1, y: 1 },
+    isCaptured: false,
+  },
+  {
+    pieceType: "queen",
+    piecePlayer: "black",
+    position: { x: 3, y: 2 },
+    isCaptured: false,
+  },
+  {
+    pieceType: "king",
+    piecePlayer: "black",
+    position: { x: 3, y: 7 },
+    isCaptured: false,
+  },
+]);
+
+let blackPieces = ref<ChessPiece[]>([
+  {
+    pieceType: "pawn",
+    piecePlayer: "white",
+    position: { x: 1, y: 2 },
+    isCaptured: false,
+  },
+  {
+    pieceType: "knight",
+    piecePlayer: "white",
+    position: { x: 4, y: 5 },
+    isCaptured: false,
+  },
+  {
+    pieceType: "bishop",
+    piecePlayer: "white",
+    position: { x: 7, y: 5 },
+    isCaptured: false,
+  },
+]);
+
+const pieces = computed(() => [...whitePieces.value, ...blackPieces.value]);
+
+let selectedPiece = {} as ChessPiece;
+
+function boardCoordinateRange() {
+  return Array.from({ length: 8 }, (_, index) => 8 - index);
+}
+
+async function clickPiece(piece: ChessPiece) {
+  const store = usePlayerWalletStore();
+  console.log(await store.provider.getNetwork());
+
+  // There was a previous piece selected
+  if (
+    !isObjectEmpty(selectedPiece) &&
+    selectedPiece.piecePlayer != piece.piecePlayer &&
+    !isEqCoordinate(selectedPiece.position, piece.position)
+  ) {
+    // Move piece
+    makeMove(piece.position.y, piece.position.x);
+    capturePiece(piece);
+  } else {
+    selectedPiece = piece;
+  }
+}
+
+function deselectPiece(piece: ChessPiece) {
+  selectedPiece = {} as ChessPiece;
+}
+
+function makeMove(row: number, col: number) {
+  // No piece has been selected
+  if (isObjectEmpty(selectedPiece)) {
+    return;
+  }
+
+  const targetPos: Coordinate = {
+    x: col,
+    y: row,
+  };
+
+  const isValidMove = ChessMoveValidator.isValidMove(
+    selectedPiece,
+    selectedPiece.position,
+    targetPos,
+    pieces.value.filter((p) => !p.isCaptured).map((p) => p.position)
+  );
+
+  if (isValidMove) {
+    toast("Move made! Creating zkProof for move now");
+  } else {
+    toast.error("Invalid move. Play again");
+    selectedPiece = {} as ChessPiece;
+    return;
+  }
+
+  const piece = pieces.value.filter(
+    (p) => p.position === selectedPiece.position
+  )[0];
+
+  piece.position = targetPos;
+
+  selectedPiece = {} as ChessPiece;
+}
+
+function isObjectEmpty(obj: Object) {
+  return Object.keys(obj).length == 0;
+}
+
+function capturePiece(piece: ChessPiece) {
+  piece.isCaptured = true;
+}
 </script>
 
 <style scoped lang="scss">
 @import "src/assets/styles/_variables.scss";
-#chess-board {
-  width: 100%;
-  border: 3px solid $graphite-gray-ui;
-}
-
-</style>
-
-<!-- <style scoped lang="scss">
-@import "src/assets/styles/_variables.scss";
-* {
-  transition: all 0.2s linear !important;
-}
-
-#chess {
-  width: 100%;
-  height: 100%;
-  display: block;
-  background: #eee;
-  margin: 0;
-  padding: 0;
-  overflow: overlay;
-}
-
 #wrap {
-  display: block;
-  margin: 1rem auto;
-  max-width: 90%;
-  width: 600px;
-  padding: 1rem;
+  margin: 3rem 10%;
 }
 
 #chess-board {
-  border: solid 3px black;
-  background: #eee;
-  display: inline-flex;
-  flex-wrap: wrap;
+  border: 0.2rem double $muted-charcoal-ui;
 }
 
-.square {
-  width: 75px;
-  height: 75px;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  max-width: 12.5%;
-  text-align: center;
-  display: inline-block;
+#chess-pieces {
+  // position: fixed;
+  // bottom: 0;
+  // left: 0;
+  width: 100%;
+  height: auto;
+  z-index: 10;
 }
-
-.square.white,
-.chess-piece i.black {
-  background: white;
-}
-.square.black,
-.chess-piece i.white {
-  background: black;
-}
-
-.chess-piece i.black {
-  color: black !important;
-  border: solid 1px black;
-}
-.chess-piece i.white {
-  color: white !important;
-  border: solid 1px white;
-}
-
-.chess-piece i {
-  padding: 1rem;
-  font-size: 1.5rem;
-  margin-top: 0.5rem;
-  border-radius: 50%;
-  width: 25px;
-  height: 25px;
-  max-width: 90%;
-}
-
-.square.piece-selected {
-  background-color: yellow !important;
-}
-
-.square.square-selected {
-  background: orange !important;
-}
-
-.square.capturable-selected {
-  background: red !important;
-}
-
-.chess-panel {
-  padding: 0.5rem;
-  margin: 1rem auto;
-}
-.chess-panel-header {
-  text-align: center;
-}
-.chess-panel.white {
-  background: white;
-}
-.chess-panel.black {
-  background: black;
-}
-.white-text {
-  color: white;
-}
-.taken-pieces {
-  padding: 0.5rem;
-}
-.chess-panel.white .taken-pieces {
-  border: solid 1px black;
-}
-.chess-panel.black .taken-pieces {
-  border: solid 1px white;
-}
-
-@media screen and (max-width: 1024px) {
-  .chess-piece i {
-    margin-top: 0.5rem;
-    width: 15px;
-    height: 15px;
-    padding: 0.3rem;
-    line-height: 0.5;
-  }
-  .square {
-    height: 80px;
-    width: 80px;
-  }
-}
-</style> -->
+</style>

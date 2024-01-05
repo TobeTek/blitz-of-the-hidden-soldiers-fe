@@ -6,7 +6,13 @@ export function fmtShortAddress(address: string) {
 
   // Shorten the address by keeping the first and last few characters
   const prefix = address.slice(0, 6);
-  const suffix = address.slice(-4);
+  const suffix = address.slice(-3);
 
-  return `${prefix}...${suffix}`;
+  return `${prefix}..${suffix}`;
+}
+
+export function isValidFilePathRegex(path: string): boolean {
+  return true;
+  const regex = /^(\/?[a-z0-9A-Z_\-\. ]+)+$/;
+  return regex.test(path);
 }

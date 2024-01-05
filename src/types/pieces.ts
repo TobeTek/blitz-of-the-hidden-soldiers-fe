@@ -1,32 +1,12 @@
-import { mimcHashMulti } from "@src/utils/hashers";
-export const UNDEFINED_COORD = 1e10;
-export const NUMBER_OF_PIECES = 10;
-export const BOARD_WIDTH = 8;
-export const BOARD_HEIGHT = 8;
+import { mimcHashMulti } from "@/utils/hashers";
+import { ChessPiece, ChessPiecePlayer, ChessPieceTypes } from "@/types/index";
 
-export type Coordinate = {
-  x: number;
-  y: number;
-};
-
-export type Piece = {
-  pieceId: number;
-  pieceClass: PieceClass;
-  pieceCoords?: Coordinate;
-};
-
-export type EthPiece = Piece & {
-  tokenId: number;
-  publicCommitment?: number | string;
-  isDead: boolean;
-};
-
-export async function calculatePublicCommitment(p: EthPiece): Promise<string> {
+export async function calculatePublicCommitment(p: ChessPiece): Promise<string> {
   return await mimcHashMulti([
     p.pieceId,
-    p.pieceClass,
-    p.pieceCoords?.x,
-    p.pieceCoords?.y,
+    p.pieceType,
+    p.position.x,
+    p.position.y,
   ]);
 }
 
@@ -38,7 +18,6 @@ export enum PieceClass {
   KNIGHT,
   ROOK,
   PAWN,
-
   // Exotic
   TREBUCHET,
 }

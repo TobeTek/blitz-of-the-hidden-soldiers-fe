@@ -1,49 +1,51 @@
 <template>
   <td
-    class="col chess-square"
-    :class="{
-      white: playerType == 'white',
-      black: playerType == 'black',
-    }"
+    class="col chess-square drop-zone"
+    :class="getSquareClass()"
     :data-row="row"
     :data-col="col"
   >
-    <span class="chess-piece"><i class="fa fa-question"></i></span>
+    <span class="coordinate">{{ getSquareCoordinate() }}</span>
   </td>
 </template>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
+import { defineProps, computed } from "vue";
 
-defineProps({
-  pieceClass: {
-    type: String,
-    required: true,
+const props = defineProps({
+  isSquareVisible: {
+    type: Boolean,
+    default: false,
   },
-  playerType: {
-    type: String,
-    required: true,
-  },
-  row:{
+  row: {
     type: Number,
     required: true,
   },
   col: {
     type: Number,
-    required: true
-  }
+    required: true,
+  },
 });
+
+const getSquareClass = () => {
+  return (props.row + props.col) % 2 == 1 ? "white" : "black";
+};
+
+function getSquareCoordinate() {
+  return `${String.fromCharCode(64 + props.col)}${props.row}`;
+}
 </script>
 
 <style scoped lang="scss">
+@import "src/assets/styles/_variables.scss";
 .chess-square {
   margin: 0;
   padding: 0;
   height: 4rem;
-  width: 2rem;
+  width: 4rem;
   transition: background-color 0.2s ease-in-out;
 
-  .white {
+  &.white {
     background-color: #e5c063;
 
     &:hover {
@@ -51,28 +53,28 @@ defineProps({
     }
   }
 
-  .black {
+  &.black {
     background-color: black;
 
     &:hover {
       background-color: rgb(18, 17, 17);
     }
   }
-}
 
-.chess-piece {
-  font-size: 3rem;
-  padding: 0.2rem;
-  text-align: center;
-  display: inline-block;
-  width: 100%;
-
-  .white {
+  .coordinate {
+    display: inline-block;
+    width: inherit;
+    padding-left: 0.1rem;
+    font-size: small;
     color: white;
+    opacity: 0.5;
+    transition: opacity 0.2s ease-in-out;
   }
 
-  .black {
-    color: black;
+  &:hover {
+    .coordinate {
+      opacity: 1;
+    }
   }
 }
 </style>

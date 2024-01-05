@@ -1,6 +1,6 @@
 <template>
   <div id="container" class="table-container">
-    <table class="table is-fullwidth is-dark" id="game-list">
+    <table v-if="props.games.length" class="table is-fullwidth is-dark" id="game-list">
       <thead class="table-header">
         <th>#</th>
         <th>Game Address</th>
@@ -9,41 +9,41 @@
         <th></th>
       </thead>
       <tbody>
-        <tr>
-          <td>1</td>
-          <td>0x....</td>
-          <td>0x10..102</td>
+        <tr v-for="(game, indx) in props.games" :key="game.gameAddress">
+          <td>{{ indx + 1 }}</td>
+          <td>{{ fmtShortAddress(game.gameAddress) }}</td>
+          <td>{{ fmtShortAddress(game.opponentAddress) }}</td>
           <td class="has-text-centered">
             <span class="tag is-dark">In Progress</span>
           </td>
           <td>
-            <button class="button is-small is-text view-more">>>></button>
-          </td>
-        </tr>
-        <tr>
-          <td>2</td>
-          <td>0x....</td>
-          <td>0x20..102</td>
-          <td class="has-text-centered">
-            <span class="tag is-danger">Lost</span>
-          </td>
-          <td>
-            <button class="button is-small is-text view-more">>>></button>
-          </td>
-        </tr>
-        <tr>
-          <td>3</td>
-          <td>0x.ca..</td>
-          <td>0x10..102</td>
-          <td class="has-text-centered">
-            <span class="tag is-primary">Won</span>
-          </td>
-          <td>
-            <button class="button is-small is-text view-more">>>></button>
+            <button class="button is-small is-text view-more">
+              >>>
+              <ul class="game-option-menu">
+                <li>
+                  <button
+                    class="button is-success"
+                    @click="emit('init-set-pieces', game.gameAddress)"
+                  >
+                    Set Pieces
+                  </button>
+                </li>
+
+                <li>
+                  <button
+                    class="button is-success"
+                    @click="$emit('go-to-game', game.gameAddress)"
+                  >
+                    Go to Game
+                  </button>
+                </li>
+              </ul>
+            </button>
           </td>
         </tr>
       </tbody>
     </table>
+    <small v-if="!props.games.length">You don't have any games yet. Create one!</small>
   </div>
   <h4 class="has-text-centered">
     <a href="" class="underlined-link" id="more-info">
@@ -52,14 +52,55 @@
   </h4>
 </template>
 
+<script setup lang="ts">
+import {
+  GameCreatedEvent,
+  GameManagerContract,
+} from "@/ethContracts/gameManager";
+import {
+  onMounted,
+  reactive,
+  ref,
+  nextTick,
+  defineProps,
+  defineEmits,
+} from "vue";
+import { usePlayerWalletStore, PlayerWalletStore } from "@/stores/playerWallet";
+import { fmtShortAddress } from "@/utils";
+
+const props = defineProps({
+  games: {
+    type: Array<GameCreatedEvent>,
+    required: true,
+  },
+});
+const emit = defineEmits(["init-set-pieces", "go-to-game"]);
+</script>
+
 <style scoped lang="scss">
 @import "src/assets/styles/_variables.scss";
 
 .view-more {
   color: $white-ui;
+  animation: button-anim 2s infinite;
 
   &:hover {
     text-decoration: none;
+  }
+
+  &:focus-within > .game-option-menu {
+    display: inline-block;
+  }
+
+  .game-option-menu {
+    display: none;
+    position: absolute;
+    top: inherit;
+
+    button {
+      background-color: $bright-gray-ui;
+      margin: 0.2rem;
+    }
   }
 }
 
@@ -67,6 +108,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  max-height: 60vh;
+  overflow-y: scroll;
 }
 
 #game-list {
@@ -86,5 +130,12 @@
 #more-info {
   display: inline-block;
   padding-top: 20px;
+}
+
+table {
+  // display: block;
+  width: 100%;
+  
+  // overflow-x: hidden;
 }
 </style>
