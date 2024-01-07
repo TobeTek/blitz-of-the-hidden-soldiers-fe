@@ -29,15 +29,14 @@
 import BoardSquare from "@/components/playGame/BoardSquare.vue";
 import ChessPieceComponent from "@/components/playGame/ChessPieceComponent.vue";
 import {
-  ChessMoveValidator,
-  ChessPiece,
-  Coordinate,
-  isEqCoordinate,
+ChessMoveValidator,
+isEqCoordinate,
 } from "@/components/playGame/chessMoveValidator";
-import { useToast } from "vue-toastification";
-import { ref, computed } from "vue";
 import { usePlayerWalletStore } from "@/stores/playerWallet";
-import { defineProps, defineEmits } from "vue";
+import { computed, defineProps, reactive, ref } from "vue";
+import { useToast } from "vue-toastification";
+import {ChessPiece,
+Coordinate,} from "@/types";
 
 const toast = useToast();
 const playerType = ref("white");
@@ -59,11 +58,49 @@ const props = defineProps({
   },
 });
 
-let whitePieces = ref<ChessPiece[]>([]);
+let blackPieces = reactive<ChessPiece[]>([
+  {
+    pieceType: "pawn",
+    piecePlayer: "white",
+    pieceCoords: { x: 1, y: 2 },
+    isCaptured: false,
+  },
+  {
+    pieceType: "knight",
+    piecePlayer: "white",
+    pieceCoords: { x: 4, y: 5 },
+    isCaptured: false,
+  },
+  {
+    pieceType: "bishop",
+    piecePlayer: "white",
+    pieceCoords: { x: 7, y: 5 },
+    isCaptured: false,
+  },
+]);
 
-let blackPieces = ref<ChessPiece[]>([]);
+let whitePieces = reactive<ChessPiece[]>([
+  {
+    pieceType: "pawn",
+    piecePlayer: "black",
+    pieceCoords: { x: 1, y: 1 },
+    isCaptured: false,
+  },
+  {
+    pieceType: "queen",
+    piecePlayer: "black",
+    pieceCoords: { x: 3, y: 2 },
+    isCaptured: false,
+  },
+  {
+    pieceType: "king",
+    piecePlayer: "black",
+    pieceCoords: { x: 3, y: 7 },
+    isCaptured: false,
+  },
+]);
 
-const pieces = computed(() => [...props.whitePieces, ...props.blackPieces]);
+const pieces = computed(() => [...whitePieces, ...blackPieces]);
 
 let selectedPiece = {} as ChessPiece;
 

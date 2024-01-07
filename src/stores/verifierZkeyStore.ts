@@ -39,5 +39,6 @@ export const useVerifierZkeyStore = defineStore("verifierZkeyStore", {
       return new Uint8Array(buffer);
     },
   },
-  persist: true,
+  $persistIndexDB: ["pieceMotionZkey", "pieceMotionWasm", "playerVisionZkey", "playerVisionWasm","revealPositionZkey", "revealPositionWasm"]
+    ,
 });
