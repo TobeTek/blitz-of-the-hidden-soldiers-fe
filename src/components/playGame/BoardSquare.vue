@@ -28,7 +28,9 @@ const props = defineProps({
 });
 
 const getSquareClass = () => {
-  return (props.row + props.col) % 2 == 1 ? "white" : "black";
+  const squareColor = (props.row + props.col) % 2 == 1 ? "white" : "black";
+  const squareVisiblity = props.isSquareVisible ? "is-visible" : "is-hidden";
+  return `${squareColor} ${squareVisiblity}`;
 };
 
 function getSquareCoordinate() {
@@ -75,6 +77,13 @@ function getSquareCoordinate() {
     .coordinate {
       opacity: 1;
     }
+  }
+
+  &.is-hidden::after {
+    content: "";
+    position: inherit;
+    height: 3rem;
+    width: 3rem;
   }
 }
 </style>

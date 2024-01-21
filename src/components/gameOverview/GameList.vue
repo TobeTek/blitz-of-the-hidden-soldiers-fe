@@ -1,6 +1,10 @@
 <template>
   <div id="container" class="table-container">
-    <table v-if="props.games.length" class="table is-fullwidth is-dark" id="game-list">
+    <table
+      v-if="props.games.length"
+      class="table is-fullwidth is-dark"
+      id="game-list"
+    >
       <thead class="table-header">
         <th>#</th>
         <th>Game Address</th>
@@ -10,15 +14,31 @@
       </thead>
       <tbody>
         <tr v-for="(game, indx) in props.games" :key="game.gameAddress">
-          <td>{{ indx + 1 }}</td>
-          <td>{{ fmtShortAddress(game.gameAddress) }}</td>
-          <td>{{ fmtShortAddress(game.opponentAddress) }}</td>
+          <td>
+            <div>
+              <span>{{ indx + 1 }}</span>
+              <span
+                class="tag player-type"
+                :class="{
+                  'is-white': game.isPlayingAsWhite,
+                  'is-black': game.isPlayingAsBlack,
+                }"
+                >&nbsp;</span
+              >
+            </div>
+          </td>
+          <td v-click-to-copy-text="game.gameAddress" class="click-to-copy">
+            <div>{{ fmtShortAddress(game.gameAddress) }}</div>
+          </td>
+          <td v-click-to-copy-text="game.opponentAddress" class="click-to-copy">
+            {{ fmtShortAddress(game.opponentAddress) }}
+          </td>
           <td class="has-text-centered">
-            <span class="tag is-dark">In Progress</span>
+            <span class="tag is-dark">Player Make Move</span>
           </td>
           <td>
-            <button class="button is-small is-text view-more">
-              >>>
+            <div class="view-more">
+              <button class="button is-small is-text">>>></button>
               <ul class="game-option-menu">
                 <li>
                   <button
@@ -38,12 +58,14 @@
                   </button>
                 </li>
               </ul>
-            </button>
+            </div>
           </td>
         </tr>
       </tbody>
     </table>
-    <small v-if="!props.games.length">You don't have any games yet. Create one!</small>
+    <small v-if="!props.games.length"
+      >You don't have any games yet. Create one!</small
+    >
   </div>
   <h4 class="has-text-centered">
     <a href="" class="underlined-link" id="more-info">
@@ -80,22 +102,34 @@ const emit = defineEmits(["init-set-pieces", "go-to-game"]);
 <style scoped lang="scss">
 @import "src/assets/styles/_variables.scss";
 
-.view-more {
-  color: $white-ui;
-  animation: button-anim 2s infinite;
+.player-type {
+  padding: 0.5rem;
+  margin: 0.5rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 202020px;
+}
 
-  &:hover {
-    text-decoration: none;
+.view-more {
+  max-width: 5rem;
+  button {
+    color: $white-ui;
+    animation: button-anim 2s infinite;
+
+    &:hover {
+      text-decoration: none;
+    }
   }
 
   &:focus-within > .game-option-menu {
-    display: inline-block;
+    display: block;
   }
 
   .game-option-menu {
     display: none;
-    position: absolute;
+    position: relative;
     top: inherit;
+    left: -5rem;
 
     button {
       background-color: $bright-gray-ui;
@@ -125,17 +159,21 @@ const emit = defineEmits(["init-set-pieces", "go-to-game"]);
   tr:hover {
     color: $bright-gray-ui;
   }
+  td:hover.click-to-copy {
+    color: $charcoal-gray-ui;
+    cursor: pointer;
+  }
 }
 
 #more-info {
-  display: inline-block;
-  padding-top: 20px;
+  display: block;
+  padding: 2rem;
 }
 
 table {
   // display: block;
   width: 100%;
-  
+  padding-bottom: 5rem;
   // overflow-x: hidden;
 }
 </style>

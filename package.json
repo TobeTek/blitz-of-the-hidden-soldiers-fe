@@ -14,6 +14,7 @@
     "chessground": "^9.0.4",
     "circomlibjs": "^0.1.7",
     "ethers": "^6.9.1",
+    "fast-lorem-ipsum": "^1.2.0",
     "firebase": "^10.7.1",
     "firebase-tools": "^13.0.2",
     "localforage": "^1.10.0",

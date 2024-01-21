@@ -111,7 +111,7 @@
 
 <script setup lang="ts">
 import { fmtShortAddress } from "@/utils";
-import { defineProps, reactive, computed, onMounted, ref } from "vue";
+import { defineProps, reactive, computed, onMounted, ref, toRaw } from "vue";
 import { ethers } from "ethers";
 import {
   PieceSelection,
@@ -128,6 +128,10 @@ import { useToast } from "vue-toastification";
 import * as _ from "lodash";
 import { usePlayerWalletStore } from "@/stores/playerWallet";
 import { ChessGameContract } from "@/ethContracts/chessGame";
+import {
+  persistGamePieces,
+  retrieveGamePieces,
+} from "@/utils/piecePersistence";
 
 const toast = useToast();
 const props = defineProps({
@@ -149,6 +153,13 @@ const pieceClassOptions = Object.keys(PieceClass).filter((x) =>
 const playerType = ChessPiecePlayer.WHITE;
 const pieceSelection = ref<PieceSelection[]>([]);
 const pieces = reactive<ChessPiece[]>([]);
+const pieceMapping = computed(() => {
+  const allPieces = {};
+  for (const piece of pieces) {
+    allPieces[piece.pieceId] = piece;
+  }
+  return allPieces;
+});
 
 onMounted(() => {
   buildPieces().catch();
@@ -168,6 +179,7 @@ async function buildPieces() {
         piecePlayer: playerType,
         pieceCoords: { x: 1, y: 1 },
         isDead: false,
+        updatedAt: 0,
       }));
     pieces.push(...uniquePieces);
   });
@@ -180,6 +192,8 @@ async function buildPieces() {
       .slice(0, 9);
     pieces.splice(index, 1, { pieceId: genPieceId, ...piece });
   }
+
+  console.log("PieceMapping: ", pieceMapping);
 }
 
 async function setPiecePositions() {
@@ -187,8 +201,15 @@ async function setPiecePositions() {
   const chessGameInstance = await ChessGameContract.buildInstance(
     props.gameAddress
   );
-  chessGameInstance.placePieces(pieces);
-  emit('positions-selected')
+  await chessGameInstance.placePieces(pieces);
+
+  persistGamePieces({
+    playerAddress: props.playerAddress,
+    gameAddress: props.gameAddress,
+    playerType: playerType,
+    pieces: pieceMapping.value,
+  });
+  emit("positions-selected");
 }
 
 function validatePiecePositions() {

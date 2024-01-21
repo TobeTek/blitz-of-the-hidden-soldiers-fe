@@ -1,7 +1,9 @@
 import { mimcHashMulti } from "@/utils/hashers";
 import { ChessPiece, ChessPiecePlayer, ChessPieceTypes } from "@/types/index";
 
-export async function calculatePublicCommitment(p: ChessPiece): Promise<string> {
+export async function calculatePublicCommitment(
+  p: ChessPiece
+): Promise<string> {
   return await mimcHashMulti([
     p.pieceId,
     p.pieceClass,
@@ -68,4 +70,26 @@ export enum PawnTokens {
   LIMITANEI_PAWN = 6004,
   CONQUISTADORS_PAWN = 6006,
   MAMLUKS_PAWN = 6008,
+}
+
+export const STANDARD_TOKENS = [
+  KingTokens.STANDARD_KING,
+  QueenTokens.STANDARD_QUEEN,
+  KnightTokens.STANDARD_KNIGHT,
+  BishopTokens.STANDARD_BISHOP,
+  RookTokens.STANDARD_ROOK,
+  PawnTokens.STANDARD_PAWN,
+];
+
+export const TOKEN_NAMES_FROM_ID = new Map<number, string>([
+  ...Object.entries(KingTokens),
+  ...Object.entries(QueenTokens),
+  ...Object.entries(BishopTokens),
+  ...Object.entries(KnightTokens),
+  ...Object.entries(RookTokens),
+  ...Object.entries(PawnTokens)
+]);
+
+export function isStandardToken(tokenId: number){
+  return STANDARD_TOKENS.includes(tokenId);
 }

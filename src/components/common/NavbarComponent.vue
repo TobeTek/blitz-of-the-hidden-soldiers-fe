@@ -31,7 +31,12 @@
       <div class="navbar-end">
         <div class="navbar-item">
           <div class="buttons">
-            <router-link to="/me" tag="button" class="button glow-button" id="play-game">
+            <router-link
+              to="/me"
+              tag="button"
+              class="button glow-button"
+              id="play-game"
+            >
               <strong>Play Game</strong>
             </router-link>
           </div>
@@ -85,7 +90,7 @@ onMounted(() => {
 
   transition: color 0.2s ease-in-out;
 
-  &:hover{
+  &:hover {
     color: $white-ui;
   }
 }
@@ -101,8 +106,27 @@ onMounted(() => {
   border-radius: 20px;
   width: 80%;
 
+  .navbar-end {
+    display: inline-block;
+    width: fit-content;
+  }
+
   .navbar-menu {
     background: inherit;
+    align-content: end;
+    flex-wrap: wrap;
+    gap: 2rem;
+
+    /* Style for screens narrower than 600px */
+    @media screen and (max-width: 1024) {
+      & {
+        display: none;
+      }
+    }
+
+    &.is-active {
+      display: flex;
+    }
   }
 
   .navbar-item.underline-link {

@@ -137,6 +137,8 @@ import { PieceClass, calculatePublicCommitment } from "@/types/pieces";
 import { isValidFilePathRegex } from "@/utils";
 import Worker from "@/worker?worker";
 import { useToast } from "vue-toastification";
+import { ChessPiece } from "@/types";
+import { markRaw } from "vue";
 
 const emit = defineEmits(["save-settings"]);
 const toast = useToast();
@@ -177,29 +179,29 @@ async function testSnarkjs() {
 
 async function changePieceMotionZkey(event: any) {
   const [file] = event.target.files;
-  store.pieceMotionZkey = file;
+  store.pieceMotionZkey = markRaw(file);
 }
 async function changePieceMotionWasm(event: any) {
   const [file] = event.target.files;
-  store.pieceMotionWasm = file;
+  store.pieceMotionWasm = markRaw(file);
 }
 
 async function changePlayerVisionZkey(event: any) {
   const [file] = event.target.files;
-  store.playerVisionZkey = file;
+  store.playerVisionZkey = markRaw(file);
 }
 async function changePlayerVisionWasm(event: any) {
   const [file] = event.target.files;
-  store.playerVisionWasm = file;
+  store.playerVisionWasm = markRaw(file);
 }
 
 async function changeRevealPositionZkey(event: any) {
   const [file] = event.target.files;
-  store.revealPositionZkey = file;
+  store.revealPositionZkey = markRaw(file);
 }
 async function changeRevealPositionWasm(event: any) {
   const [file] = event.target.files;
-  store.revealPositionWasm = file;
+  store.revealPositionWasm = markRaw(file);
 }
 </script>
 

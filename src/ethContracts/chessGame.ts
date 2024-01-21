@@ -1,5 +1,5 @@
 import { PlayerWalletStore, usePlayerWalletStore } from "@/stores/playerWallet";
-import { ChessPiece } from "@/types";
+import { ChessPiece, ChessPiecePlayer } from "@/types";
 import { PieceSelection } from "@/types/pieces";
 import { AddressLike, Contract, ethers } from "ethers";
 import { doc, getDoc } from "firebase/firestore";
@@ -76,20 +76,38 @@ export class ChessGameContract {
     const { white: whitePieceIds, black: blackPieceIds } =
       await this.getPieceIds();
     for (const pieceId of whitePieceIds) {
-      const piece: EthChessPiece = await this._instance.playerPieces(
+      const piece = await this._instance.playerPieces(
         this._playerWhite,
         pieceId
       );
-      whitePieces.push(piece);
+      whitePieces.push({
+        pieceId: piece[0],
+        tokenId: piece[1],
+        pieceClass: piece[2],
+        publicCommitment: piece[3],
+        pieceCoords: { x: piece[4][0], y: piece[4][1] },
+        isDead: piece[5],
+        updatedAt: piece[6],
+        // updatedAt: 0,
+      });
     }
 
     const blackPieces: EthChessPiece[] = [];
     for (const pieceId of blackPieceIds) {
-      const piece: EthChessPiece = await this._instance.playerPieces(
+      const piece = await this._instance.playerPieces(
         this._playerBlack,
         pieceId
       );
-      blackPieces.push(piece);
+      blackPieces.push({
+        pieceId: piece[0],
+        tokenId: piece[1],
+        pieceClass: piece[2],
+        publicCommitment: piece[3],
+        pieceCoords: { x: piece[4][0], y: piece[4][1] },
+        isDead: piece[5],
+        updatedAt: piece[6],
+        // updatedAt: 0,
+      });
     }
 
     return { white: whitePieces, black: blackPieces };
@@ -97,13 +115,52 @@ export class ChessGameContract {
 
   async placePieces(pieces: ChessPiece[]) {
     const ethPieces = await calculateCommitments(pieces);
-    console.log("EthPieces: ", ethPieces);
     await this._instance.placePieces(ethPieces);
   }
 
   async makeMove(piece: ChessPiece, targetPosition: Coordinate) {}
 
   async reportPositions() {}
+
+  async getPlayerVision(gameAddress: string, playerAddress: string) {
+    // playerBoardVision[msg.sender][i]
+  }
+
+  async isWhitePlayerTurn() {
+    return await this._instance.isWhitePlayerTurn();
+  }
+
+  async isGameOver() {
+    return await this._instance.isGameOver();
+  }
+
+  async getGameWinner(): Promise<string | undefined> {
+    const filter = this._instance.filters.GameOver;
+    const [event] = await this._instance.queryFilter(filter, 0, "latest");
+    if (event) {
+      const winnerAddress = event.args[0];
+      return winnerAddress;
+    }
+    return undefined;
+  }
+
+  async getPlayerType(playerAddress: string): ChessPiecePlayer {
+    const playerWhite = await this.getPlayerWhite();
+    // const playerBlack = await this.getPlayerBlack();
+    if (playerAddress === playerWhite) {
+      return ChessPiecePlayer.WHITE;
+    }
+    return ChessPiecePlayer.BLACK;
+  }
+
+  async getOpponentAddress(playerAddress: string): string {
+    const playerWhite = await this.getPlayerWhite();
+    const playerBlack = await this.getPlayerBlack();
+    if (playerAddress === playerWhite) {
+      return playerBlack;
+    }
+    return playerWhite;
+  }
 }
 
 async function calculateCommitments(pieces: ChessPiece[]) {

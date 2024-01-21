@@ -13,7 +13,7 @@
       ></UserOverview>
       <br />
       <hr />
-      <MyPieces></MyPieces>
+      <MyPieces :playerTokens="playerTokens"></MyPieces>
       <br />
       <PieceCollections></PieceCollections>
     </div>
@@ -44,6 +44,7 @@ import SelectPieces from "@/components/composition/SelectPieces.vue";
 import MyPieces from "@/components/gameOverview/MyPieces.vue";
 import PieceCollections from "@/components/gameOverview/PieceCollections.vue";
 import UserOverview from "@/components/gameOverview/UserOverview.vue";
+import { ChessPieceCollectionContract } from "@/ethContracts/chessPieceCollection";
 import {
   GameCreatedEvent,
   GameManagerContract,
@@ -51,23 +52,60 @@ import {
 import router from "@/router";
 import { useChessGameStore } from "@/stores/chessGame";
 import { PlayerWalletStore, usePlayerWalletStore } from "@/stores/playerWallet";
+import { TokenBalance } from "@/types";
 import { ethers } from "ethers";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
+import {
+  retrieveGamePieces,
+  persistGamePieces,
+} from "@/utils/piecePersistence";
+import { ChessPiece, PieceClassToType } from "@/types";
+import { PieceClass } from "@/types/pieces";
 
-const isCreateGameModalActive = ref(false);
-const isSelectPiecesModalActive = ref(false);
 const walletStore = usePlayerWalletStore() as PlayerWalletStore;
 const gameStore = useChessGameStore();
 
+const isCreateGameModalActive = ref(false);
+const isSelectPiecesModalActive = ref(false);
+
 const playerGames = ref<GameCreatedEvent[]>([]);
+const playerTokens = ref<TokenBalance[]>([]);
 let gameToEdit = {
   gameAddress: ethers.ZeroAddress,
 } as GameCreatedEvent;
 
-onMounted(() => {
-  listenForEvents().catch();
-  getPlayerGames().catch();
-});
+onMounted(()=>{});
+watch(
+  () => walletStore.loading,
+  (isLoading) => {
+    if (!isLoading) {
+      listenForEvents().catch();
+      getPlayerGames().catch();
+      getPlayerTokens().catch();
+    }
+  }
+);
+
+async function listenForEvents() {
+  let gameManager = await GameManagerContract.getInstance();
+  const filter = gameManager.filters.GameCreated(null, null, null);
+  gameManager.on(filter, async (args: any[]) => {
+    console.log("Event: ", args);
+    await getPlayerGames();
+  });
+}
+async function getPlayerGames() {
+  const games = await GameManagerContract.getPlayersGames(
+    walletStore.walletAddress
+  );
+  playerGames.value = games;
+}
+async function getPlayerTokens() {
+  const tokens = await ChessPieceCollectionContract.getPlayerTokens(
+    walletStore.walletAddress
+  );
+  playerTokens.value = tokens;
+}
 
 function initSetPieces(gameAddress: string) {
   const game = playerGames.value.filter(
@@ -81,28 +119,14 @@ function goToGame(gameAddress: string) {
   router.push({ name: "PlayGame", params: { gameAddress: gameAddress } });
 }
 
-async function listenForEvents() {
-  let gameManager = await GameManagerContract.getInstance();
-  const filter = gameManager.filters.GameCreated(null, null, null);
-  gameManager.on(filter, async (args: any[]) => {
-    console.log("Event: ", args);
-    await getPlayerGames();
-  });
-}
-
-async function getPlayerGames() {
-  const games = await GameManagerContract.getPlayersGames(
-    walletStore.walletAddress
-  );
-  playerGames.value = games;
-}
-
 async function postCreateGame() {
   isCreateGameModalActive.value = false;
   await getPlayerGames();
 }
 
-async function postSetPieces() {}
+async function postSetPieces() {
+  isSelectPiecesModalActive.value = false;
+}
 </script>
 
 <style scoped lang="scss">

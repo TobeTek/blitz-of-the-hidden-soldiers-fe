@@ -1,7 +1,6 @@
 <template>
   <main class="full-width">
     <router-view />
-    
   </main>
 </template>
 
@@ -14,21 +13,6 @@ import { GameManagerContract } from "@/ethContracts/gameManager";
 import { useToast } from "vue-toastification";
 
 const toast = useToast();
-const store = usePlayerWalletStore();
-
-
-async function connectWallet() {
-  if (window.ethereum == null) {
-    toast.error("MetaMask not installed; Please install to use this site!");
-  } else {
-    let provider = new ethers.BrowserProvider(window.ethereum);
-    let signer = await provider.getSigner();
-    const chainId = (await provider.getNetwork()).chainId;
-    provider.send("eth_requestAccounts", []).then(async () => {
-      await store.accountChanged(signer, chainId, provider);
-    });
-  }
-}
 
 async function listenForEvents() {
   let gameManager = await GameManagerContract.getInstance();
@@ -36,11 +20,6 @@ async function listenForEvents() {
     console.log("Unfiltered: ", args);
   });
 }
-
-onBeforeMount(() => {
-  // connectWallet().catch();
-  listenForEvents().catch();
-});
 </script>
 
 <style lang="scss">

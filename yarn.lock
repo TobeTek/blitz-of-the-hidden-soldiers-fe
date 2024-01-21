@@ -2901,6 +2901,11 @@ fast-levenshtein@~2.0.6:
   resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
   integrity sha512-DCXu6Ifhqcks7TZKY3Hxp3y6qphY5SJZmrWMDrKcERSOXWQdMhU9Ig/PYrzyw/ul9jOIyh0N4M0tbC5hodg8dw==
 
+fast-lorem-ipsum@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/fast-lorem-ipsum/-/fast-lorem-ipsum-1.2.0.tgz#d637f479de10b3860bf2df1cc9dd3719cb1f4fec"
+  integrity sha512-z42UgC4il5ypxVHOCnS2CML2YUjLGMm8fVRHPkRFbHzggzVsELpwWp6iWY0cvLNKq89h7RAYI9cchDaPaWOueQ==
+
 fast-text-encoding@^1.0.0, fast-text-encoding@^1.0.3:
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/fast-text-encoding/-/fast-text-encoding-1.0.6.tgz#0aa25f7f638222e3396d72bf936afcf1d42d6867"

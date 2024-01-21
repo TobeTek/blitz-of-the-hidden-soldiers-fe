@@ -1,6 +1,6 @@
 import App from "@/App.vue";
 import router from "@/router";
-import { clickOutside } from "./directives";
+import { clickOutside, copyToClipboard } from "./directives";
 import { createApp } from "vue";
 import { createPinia, Store } from "pinia";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
@@ -10,10 +10,13 @@ import "vue-toastification/dist/index.css";
 import { VueFire, VueFireAuth } from "vuefire";
 import localForage from "localforage";
 import firebaseApp from "@/firebaseInit";
+import "./polyfills";
 
 localForage.config({
   driver: localForage.INDEXEDDB,
 });
+
+const persistedState = {};
 
 async function indexDbPlugin({
   options,
@@ -22,29 +25,37 @@ async function indexDbPlugin({
   options: any;
   store: Store;
 }) {
-  console.log(options.$persistIndexDB, store.$state.pieceMotionZkey);
   if (options.$persistIndexDB) {
     for (const storeField of options.$persistIndexDB) {
       const stored = await localForage.getItem(
         store.$id + `-${storeField}-state`
       );
-      console.log(store.$state[storeField]);
       if (stored) {
+        persistedState[storeField] = stored;
         store.$state[storeField] = stored;
       }
-      console.log("Patched successfully: ", stored);
-      store.$subscribe(() => {
-        if (
-          store.$state[storeField] === undefined ||
-          store.$state[storeField] === null
-        )
-          {return};
-        localForage.setItem(
-          store.$id + `-${storeField}-state`,
-          store.$state[storeField]
-        );
-      });
     }
+
+    store.$subscribe(async (mutation, state) => {
+      for (const storeField of options.$persistIndexDB) {
+        if (state[storeField] === undefined || state[storeField] === null) {
+          continue;
+        }
+
+        if (state[storeField] === persistedState[storeField]) {
+          continue;
+        }
+
+        if (store.$state[storeField] instanceof File) {
+          await localForage.setItem(
+            store.$id + `-${storeField}-state`,
+            store.$state[storeField]
+          );
+        } else {
+          // Weird stuff. Occassionally a race condition makes an empty object to be passed.
+        }
+      }
+    });
   }
 }
 
@@ -73,5 +84,6 @@ app.use(pinia);
 
 // Directives
 app.directive("click-outside", clickOutside);
+app.directive("click-to-copy-text", copyToClipboard);
 
 app.mount("#app");

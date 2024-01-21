@@ -14,8 +14,8 @@
       <tr v-for="row in boardCoordinateRange()">
         <BoardSquare
           v-for="col in 8"
-          :pieceClass="'pawn'"
-          :playerType="'white'"
+          :playerType="props.playerType"
+          :isSquareVisible="true"
           :row="row"
           :col="col"
           @click="makeMove(row, col)"
@@ -29,19 +29,20 @@
 import BoardSquare from "@/components/playGame/BoardSquare.vue";
 import ChessPieceComponent from "@/components/playGame/ChessPieceComponent.vue";
 import {
-ChessMoveValidator,
-isEqCoordinate,
+  ChessMoveValidator,
+  PlayerVisionCalculator,
+  isEqCoordinate,
+  arrayOR,
 } from "@/components/playGame/chessMoveValidator";
 import { usePlayerWalletStore } from "@/stores/playerWallet";
 import { computed, defineProps, reactive, ref } from "vue";
 import { useToast } from "vue-toastification";
-import {ChessPiece,
-Coordinate,} from "@/types";
+import { ChessPiece, Coordinate, ChessPiecePlayer, BoardChessPiece } from "@/types";
 
 const toast = useToast();
-const playerType = ref("white");
-const getPlayerPieces = () => whitePieces;
-const getOpponentPieces = () => blackPieces;
+// const playerType = ref("white");
+// const getPlayerPieces = () => whitePieces;
+// const getOpponentPieces = () => blackPieces;
 
 const props = defineProps({
   whitePieces: {
@@ -56,51 +57,31 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
+  playerType: {
+    type: String,
+    required: true,
+  },
 });
 
-let blackPieces = reactive<ChessPiece[]>([
-  {
-    pieceType: "pawn",
-    piecePlayer: "white",
-    pieceCoords: { x: 1, y: 2 },
-    isCaptured: false,
-  },
-  {
-    pieceType: "knight",
-    piecePlayer: "white",
-    pieceCoords: { x: 4, y: 5 },
-    isCaptured: false,
-  },
-  {
-    pieceType: "bishop",
-    piecePlayer: "white",
-    pieceCoords: { x: 7, y: 5 },
-    isCaptured: false,
-  },
-]);
+const pieces = computed<BoardChessPiece[]>(() => [...props.whitePieces, ...props.blackPieces]);
+const activePieces = computed<BoardChessPiece[]>(() => pieces.value.filter((p) => !p.isDead));
+const capturedPieces = computed(() => pieces.value.filter((p) => p.isDead));
 
-let whitePieces = reactive<ChessPiece[]>([
-  {
-    pieceType: "pawn",
-    piecePlayer: "black",
-    pieceCoords: { x: 1, y: 1 },
-    isCaptured: false,
-  },
-  {
-    pieceType: "queen",
-    piecePlayer: "black",
-    pieceCoords: { x: 3, y: 2 },
-    isCaptured: false,
-  },
-  {
-    pieceType: "king",
-    piecePlayer: "black",
-    pieceCoords: { x: 3, y: 7 },
-    isCaptured: false,
-  },
-]);
+const playerVision = computed(() => {
+  const myActivePieces = activePieces.value.filter(
+    (p: BoardChessPiece) => p.piecePlayer === props.playerType
+  );
+  const myActivePiecePositions = myActivePieces.map((p) => p.pieceCoords);
+  const myPieceVisions = myActivePieces.map((p) =>
+    PlayerVisionCalculator.getPieceVision(p, myActivePiecePositions)
+  );
 
-const pieces = computed(() => [...whitePieces, ...blackPieces]);
+  console.log("activePieces: ", activePieces.value);
+  console.log("MyActivePieces: ", myActivePieces);
+  console.log("MyActivePiecePositions: ", myActivePiecePositions);
+  console.log("MyPieceVisions: ", myPieceVisions);
+  return arrayOR(...myPieceVisions);
+});
 
 let selectedPiece = {} as ChessPiece;
 
@@ -109,8 +90,7 @@ function boardCoordinateRange() {
 }
 
 async function clickPiece(piece: ChessPiece) {
-  const store = usePlayerWalletStore();
-  console.log(await store.provider.getNetwork());
+  console.log("PlayerVision: ", playerVision.value);
 
   // There was a previous piece selected
   if (

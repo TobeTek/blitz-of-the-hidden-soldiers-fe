@@ -3,6 +3,8 @@ import { PieceSelection } from "@/types/pieces";
 import { AddressLike, Contract, ethers } from "ethers";
 import { doc, getDoc } from "firebase/firestore";
 import { useFirestore } from "vuefire";
+import { ChessGameState } from "@/types";
+import { ChessGameContract } from "@/ethContracts/chessGame";
 
 export class GameManagerContract {
   static _instance: Contract;
@@ -23,7 +25,6 @@ export class GameManagerContract {
     const store = usePlayerWalletStore() as PlayerWalletStore;
     const result = await getDoc(docRef);
     const data = result.data();
-    console.log(data, store.walletChainId);
     const chainInformation = data[store.walletChainId][0];
     let signer = await store.provider.getSigner();
 
@@ -62,7 +63,6 @@ export class GameManagerContract {
     const gameManager = await GameManagerContract.getInstance();
     const tx = await gameManager.setPlayerAllocation(game, selection);
     const rc = await tx.wait();
-    console.log(rc);
   }
 
   static async getPlayersGames(player: string): Promise<GameCreatedEvent[]> {
@@ -106,13 +106,71 @@ export class GameManagerContract {
     );
     const [event] = await gameManager.queryFilter(filter, 0, "latest");
     if (event) {
-      return event.args[2].map((log)=> ({pieceClass: log[0], tokenId:log[1], count:log[2]}));
+      return event.args[2].map((log) => ({
+        pieceClass: log[0],
+        tokenId: log[1],
+        count: log[2],
+      }));
     }
     return undefined;
   }
-}
 
-const GAME_CREATED_EVENT = "GameCreated";
+  static async getGameState(gameAddress: string, playerAddress: string) {
+    const gameManager = await GameManagerContract.getInstance();
+    const chessGame = await ChessGameContract.buildInstance(gameAddress);
+    const playerWhite = await chessGame.getPlayerWhite();
+    const playerBlack = await chessGame.getPlayerBlack();
+
+    const playerWhiteSelection = await GameManagerContract.getPlayerSelection(
+      gameAddress,
+      playerWhite
+    );
+    if (playerWhiteSelection === undefined) {
+      return ChessGameState.WHITE_SET_PIECES;
+    }
+
+    const playerBlackSelection = await GameManagerContract.getPlayerSelection(
+      gameAddress,
+      playerBlack
+    );
+    if (playerBlackSelection === undefined) {
+      return ChessGameState.BLACK_SET_PIECES;
+    }
+
+    const playerWhitePlacedPieces = await chessGame.getPlayerHasPlacedPieces(
+      playerWhite
+    );
+    if (!playerWhitePlacedPieces) {
+      return ChessGameState.WHITE_PLACE_PIECES;
+    }
+
+    const playerBlackPlacedPieces = await chessGame.getPlayerHasPlacedPieces(
+      playerBlack
+    );
+    if (!playerBlackPlacedPieces) {
+      return ChessGameState.BLACK_PLACE_PIECES;
+    }
+
+    if (await chessGame.isGameOver()) {
+      const winnerAddress = await chessGame.getGameWinner();
+      if (winnerAddress === playerWhite) {
+        return ChessGameState.WHITE_WON;
+      }
+      if (winnerAddress === playerBlack) {
+        return ChessGameState.BLACK_WON;
+      }
+    }
+
+    const isWhitePlayerTurn = await chessGame.isWhitePlayerTurn();
+    if (isWhitePlayerTurn) {
+      return ChessGameState.WHITE_MAKE_MOVE;
+    } else {
+      return ChessGameState.BLACK_MAKE_MOVE;
+    }
+
+    return ChessGameState.UNKNOWN;
+  }
+}
 export class GameCreatedEvent {
   gameAddress: string;
   playerWhite: string;
@@ -141,7 +199,18 @@ export class GameCreatedEvent {
       return this.playerWhite;
     }
   }
-}
-// (address gameAddress, address indexed playerWhite, address indexed playerBlack);
 
-const PLAYER_SELECTED_PIECES = "PlayerSelectedPieces";
+  get isPlayingAsWhite() {
+    console.log(
+      "isplaying as white",
+      this._playingAs,
+      this.playerWhite,
+      this.playerBlack
+    );
+    return this._playingAs === this.playerWhite;
+  }
+
+  get isPlayingAsBlack() {
+    return this._playingAs === this.playerBlack;
+  }
+}
