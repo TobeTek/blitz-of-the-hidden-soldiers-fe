@@ -16,7 +16,7 @@ const routes = [
     component: GameOverview,
   },
   {
-    path: "/play-game",
+    path: "/play-game/:gameAddress",
     name: "PlayGame",
     component: PlayGame,
   },

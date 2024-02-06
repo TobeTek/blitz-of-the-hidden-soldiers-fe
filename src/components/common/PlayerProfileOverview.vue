@@ -1,16 +1,15 @@
 <template>
-  <div v-if="isWalletConnected" class="card" id="playerProfile">
+  <div class="card" id="playerProfile">
     <div class="card-content">
-      <div class="level">
-        <div class="level-left">
-          <div class="level-item">
-            <img
-              :src="`https://api.dicebear.com/7.x/big-ears/jpg?flip=false&seed=${store.walletAddress}`"
-              alt=""
-              class="player-avatar"
-            />
-          </div>
+      <div class="level" id="top-level">
+        <div class="level-item">
+          <img
+            :src="`https://api.dicebear.com/7.x/big-ears/jpg?flip=false&seed=${store.walletAddress}`"
+            alt=""
+            class="player-avatar"
+          />
         </div>
+
         <div class="level-item">
           <span class="player-name">
             {{ fmtShortAddress(store.walletAddress) }}
@@ -31,34 +30,13 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { ethers } from "ethers";
 import { usePlayerWalletStore } from "@/stores/playerWallet";
 import { fmtShortAddress } from "@/utils";
 
 const store = usePlayerWalletStore();
-const isWalletConnected = store.isWalletConnected;
-
-const _onMounted = async () => {
-  return;
-  let provider;
-  let signer;
-  if (window.ethereum == null) {
-    toast.error("MetaMask not installed; Please install to use this site!");
-  } else {
-    provider = new ethers.BrowserProvider(window.ethereum);
-    signer = await provider.getSigner();
-    const chainId = (await provider.getNetwork()).chainId;
-    provider.send("eth_requestAccounts", []).then(async () => {
-      await store.accountChanged(signer, chainId, provider);
-    });
-  }
-};
-
-onMounted(() => {
-  _onMounted().catch();
-});
 </script>
 
 <style scoped lang="scss">
@@ -92,9 +70,18 @@ onMounted(() => {
   }
 }
 
+.card-content {
+  width: inherit;
+
+  .level {
+    width: inherit;
+  }
+}
+
 .player-name {
   display: inline-block;
   margin: 0 10px;
+  width: inherit;
 }
 .player-avatar {
   height: 2em;

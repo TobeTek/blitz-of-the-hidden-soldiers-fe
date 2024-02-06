@@ -29,8 +29,12 @@
       <div class="tile is-mobile is-parent">
         <div class="tile is-mobile is-child">
           <div id="list-of-games">
-            <h1 class="title">Your Games</h1>
-            <GameList></GameList>
+            <h1 class="title">My Games</h1>
+            <GameList
+              :games="props.games"
+              @go-to-game="emit('go-to-game', $event)"
+              @init-set-pieces="emit('init-set-pieces', $event)"
+            ></GameList>
           </div>
         </div>
       </div>
@@ -39,9 +43,17 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, defineProps } from "vue";
 import Panel from "@/components/gameOverview/Panel.vue";
 import GameList from "@/components/gameOverview/GameList.vue";
+
+const props = defineProps({
+  games: {
+    type: Array,
+    required: true,
+  },
+});
+const emit = defineEmits(["start-create-game","go-to-game", "init-set-pieces"]);
 </script>
 
 <style scoped lang="scss">
@@ -50,7 +62,7 @@ import GameList from "@/components/gameOverview/GameList.vue";
   color: $white-ui;
   background-color: $midnight-gray-ui;
   height: 100%;
-  width: 100%;
+  width: 95%;
   border-radius: 20px;
   .title {
     color: $white-ui;

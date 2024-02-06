@@ -1,32 +1,14 @@
-import { mimcHashMulti } from "@src/utils/hashers";
-export const UNDEFINED_COORD = 1e10;
-export const NUMBER_OF_PIECES = 10;
-export const BOARD_WIDTH = 8;
-export const BOARD_HEIGHT = 8;
+import { mimcHashMulti } from "@/utils/hashers";
+import { ChessPiece, ChessPiecePlayer, ChessPieceTypes } from "@/types/index";
 
-export type Coordinate = {
-  x: number;
-  y: number;
-};
-
-export type Piece = {
-  pieceId: number;
-  pieceClass: PieceClass;
-  pieceCoords?: Coordinate;
-};
-
-export type EthPiece = Piece & {
-  tokenId: number;
-  publicCommitment?: number | string;
-  isDead: boolean;
-};
-
-export async function calculatePublicCommitment(p: EthPiece): Promise<string> {
+export async function calculatePublicCommitment(
+  p: ChessPiece
+): Promise<string> {
   return await mimcHashMulti([
     p.pieceId,
     p.pieceClass,
-    p.pieceCoords?.x,
-    p.pieceCoords?.y,
+    p.pieceCoords.x,
+    p.pieceCoords.y,
   ]);
 }
 
@@ -38,7 +20,6 @@ export enum PieceClass {
   KNIGHT,
   ROOK,
   PAWN,
-
   // Exotic
   TREBUCHET,
 }
@@ -89,4 +70,26 @@ export enum PawnTokens {
   LIMITANEI_PAWN = 6004,
   CONQUISTADORS_PAWN = 6006,
   MAMLUKS_PAWN = 6008,
+}
+
+export const STANDARD_TOKENS = [
+  KingTokens.STANDARD_KING,
+  QueenTokens.STANDARD_QUEEN,
+  KnightTokens.STANDARD_KNIGHT,
+  BishopTokens.STANDARD_BISHOP,
+  RookTokens.STANDARD_ROOK,
+  PawnTokens.STANDARD_PAWN,
+];
+
+export const TOKEN_NAMES_FROM_ID = new Map<number, string>([
+  ...Object.entries(KingTokens),
+  ...Object.entries(QueenTokens),
+  ...Object.entries(BishopTokens),
+  ...Object.entries(KnightTokens),
+  ...Object.entries(RookTokens),
+  ...Object.entries(PawnTokens)
+]);
+
+export function isStandardToken(tokenId: number){
+  return STANDARD_TOKENS.includes(tokenId);
 }

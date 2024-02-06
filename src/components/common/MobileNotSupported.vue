@@ -24,7 +24,6 @@ const isMobile = () => {
   return screen.width <= 780;
   // return false
 };
-console.log("isMobile: ", isMobile());
 </script>
 
 <style scoped lang="scss">

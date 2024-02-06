@@ -1,12 +1,13 @@
 import { buildMimc7, buildMimcSponge } from "circomlibjs";
-const ffjavascript = require("ffjavascript");
-const stringifyBigInts = ffjavascript.utils.stringifyBigInts;
+// import * as ffjavascript from "ffjavascript";
+// const ffjavascript = require("ffjavascript");
+// const stringifyBigInts = ffjavascript.utils.stringifyBigInts;
 
-const F = new ffjavascript.ZqField(
-  ffjavascript.Scalar.fromString(
-    "21888242871839275222246405745257275088548364400416034343698204186575808495617"
-  )
-);
+// const F = new ffjavascript.ZqField(
+//   ffjavascript.Scalar.fromString(
+//     "21888242871839275222246405745257275088548364400416034343698204186575808495617"
+//   )
+// );
 
 let _mimcHasher: any;
 async function _getMimcHasher(): Promise<any> {

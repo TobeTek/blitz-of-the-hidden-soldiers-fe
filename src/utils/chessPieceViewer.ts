@@ -1,0 +1,5 @@
+class ChessPieceViewer{
+    static pieceVision (){
+
+    }
+}
