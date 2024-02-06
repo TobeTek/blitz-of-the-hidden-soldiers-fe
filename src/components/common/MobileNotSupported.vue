@@ -21,8 +21,8 @@ import { computed } from "vue";
 
 // XXX: Temporary change, revert for production
 const isMobile = () => {
-  // return screen.width <= 760;
-  return false
+  return screen.width <= 780;
+  // return false
 };
 </script>
 
@@ -50,7 +50,7 @@ h2{
   height: 100%;
   width: 100vw;
   overflow: hidden;
-  z-index: 200;
+  z-index: 400;
 }
 
 .container {

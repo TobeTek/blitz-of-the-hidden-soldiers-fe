@@ -3,6 +3,7 @@
     <div class="column is-2 is-mobile">
       <Sidebar></Sidebar>
     </div>
+
     <div class="column">
       <section>
         <ChessBoard
@@ -22,6 +23,7 @@
         <!-- TODO: Implement -->
         <!-- <WaitingForOpponentToSelectPieces></WaitingForOpponentToSelectPieces> -->
       </section>
+
     </div>
     <div v-if="playerHasPlacedPieces" class="column is-2" id="player-info">
       <CapturedPieces></CapturedPieces>
@@ -42,6 +44,7 @@ import CapturedPieces from "@/components/playGame/CapturedPieces.vue";
 import { PlayerWalletStore, usePlayerWalletStore } from "@/stores/playerWallet";
 import SelectPiecePositions from "@/components/playGame/SelectPiecePositions.vue";
 
+
 import { useChessGameStore } from "@/stores/chessGame";
 import { ChessGameContract } from "@/ethContracts/chessGame";
 import { EthChessPiece, ChessPiecePlayer, BoardChessPiece } from "@/types";
@@ -49,6 +52,7 @@ import {
   retrieveGamePieces,
   persistGamePieces,
 } from "@/utils/piecePersistence";
+
 
 const walletStore = usePlayerWalletStore() as PlayerWalletStore;
 const gameStore = useChessGameStore();
