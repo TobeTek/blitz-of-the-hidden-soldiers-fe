@@ -33,7 +33,9 @@
                   </div>
                   <div class="card-content">
                     <div class="content is-text-centered">
-                      <p><strong>{{ piece.name }}</strong></p>
+                      <p>
+                        <strong>{{ piece.name }}</strong>
+                      </p>
                       <p>
                         <small>Set:</small>
                         <span
@@ -101,7 +103,7 @@ onMounted(() => {
   );
   const carouselItem =
     carouselContainer.value?.getElementsByClassName("carousel-item")[0];
-  carouselTransform.e = -carouselItem?.clientWidth * 2;
+  carouselTransform.e = -carouselItem?.clientWidth * 2.35;
   carouselContainer.value.style.transform = carouselTransform.toString();
 });
 
@@ -147,8 +149,8 @@ function prevSlide() {
   margin: 0;
 
   overflow: hidden;
-
   display: flex;
+  gap: 1rem;
   align-items: center;
   justify-content: center;
 
