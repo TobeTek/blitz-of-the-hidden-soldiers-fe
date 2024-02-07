@@ -24,9 +24,9 @@
     </div>
 
     <div id="navbarBasicExample" class="navbar-menu">
-      <a class="navbar-item underline-link"> Home </a>
+      <a class="navbar-item underline-link" href="/"> Home </a>
 
-      <a class="navbar-item underline-link"> Documentation </a>
+      <a class="navbar-item underline-link" href="/gallery"> Gallery </a>
 
       <div class="navbar-end">
         <div class="navbar-item">
@@ -99,7 +99,6 @@ onMounted(() => {
   position: absolute;
   top: 5%;
   left: 10%;
-  // margin: 1rem auto;
   padding: 1rem;
   background: transparent;
   border: 2px solid $muted-charcoal-ui;
@@ -179,25 +178,4 @@ a {
   text-decoration: none;
 }
 
-// .un {
-//   display: inline-block;
-//   padding-bottom: 2px;
-//   background-image: linear-gradient(#fff 0 0);
-//   background-position: 0 100%;
-//   background-size: 0% 2px;
-//   background-repeat: no-repeat;
-//   transition: background-size 0.3s, background-position 0s 0.3s;
-//   color: #fff;
-//   text-align: center;
-//   font-family: "DM Mono";
-//   font-size: 22px;
-//   font-style: normal;
-//   font-weight: 400;
-//   line-height: normal;
-// }
-
-// .un:hover {
-//   background-position: 100% 100%;
-//   background-size: 100% 2px;
-// }
 </style>

@@ -14,6 +14,8 @@ import { useToast } from "vue-toastification";
 
 const toast = useToast();
 
+console.log('Vite Environment: ',import.meta.env.VITE_ENVIRONMENT);
+
 async function listenForEvents() {
   let gameManager = await GameManagerContract.getInstance();
   gameManager.on("*", (args: any[]) => {

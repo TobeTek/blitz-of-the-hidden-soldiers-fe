@@ -33,6 +33,7 @@ export const usePlayerWalletStore = defineStore(
         const chainId = (await _provider.getNetwork()).chainId;
         await _provider.send("eth_requestAccounts", []);
         walletAddress.value = await _signer.getAddress();
+        await changeToActiveNetwork();
         walletChainId.value = chainId;
         provider.value = markRaw(_provider);
         signer.value = markRaw(_signer);
@@ -99,9 +100,46 @@ export const usePlayerWalletStore = defineStore(
   }
 );
 
-export async function connectWallet() {
-  if (window.ethereum == null) {
-    toast.error("MetaMask not installed; Please install to use this site!");
+export async function changeToActiveNetwork() {
+  toast.error("MetaMask not installed; Please install to use this site!");
+  let network;
+  if (import.meta.env.VITE_ENVIRONMENT == "development") {
+    const hardhatNetwork = {
+      chainName: "Hardhat Local Testnet",
+      chainId: `0x${(31337).toString(16)}`,
+      nativeCurrency: {
+        name: "Ether",
+        symbol: "ETH",
+        decimals: 18,
+      },
+      rpcUrls: ["http://localhost:8545"],
+    };
+    network = hardhatNetwork;
   } else {
+    const toposNetwork = {
+      chainName: "Topos",
+      chainId: `0x${(2359).toString(16)}`,
+      nativeCurrency: {
+        name: "Topos",
+        symbol: "TOPOS",
+        decimals: 18,
+      },
+      rpcUrls: ["https://rpc.topos-subnet.testnet-1.topos.technology"],
+    };
+    network = toposNetwork;
+  }
+
+  try {
+    await window.ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: network.chainId }],
+    });
+  } catch (err: any) {
+    if (err.code === 4902) {
+      await window.ethereum.request({
+        method: "wallet_addEthereumChain",
+        params: [network],
+      });
+    }
   }
 }

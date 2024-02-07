@@ -1,0 +1,79 @@
+[
+  {
+    "id": "Regular-King",
+    "name": "King",
+    "collection": "Regular",
+    "collectionColor": "#800020",
+    "portrait": "chess/bothsCollection/Regular-King.png",
+    "whiteRep": "chess/bothsCollection/reps/regular-king-white.svg",
+    "blackRep": "chess/bothsCollection/reps/regular-king-black.svg",
+    "class": "fa-chess-king",
+    "description": "In the midst of the battlefield, surrounded by loyal knights and steadfast soldiers, stands the king - a beacon of strength, wisdom, and foresight. His every move, a calculated step in the intricate dance of life. As the most important piece in this puzzle of existence, his presence commands respect and protection. Guard him with all your might, for upon his shoulders rests the fate of the kingdom and the hearts of its people."
+  },
+  {
+    "id": "Regular-Queen",
+    "name": "Queen",
+    "collection": "Regular",
+    "collectionColor": "#800020",
+    "portrait": "chess/bothsCollection/Regular-Queen.png",
+    "whiteRep": "chess/bothsCollection/reps/regular-king-white.svg",
+    "blackRep": "chess/bothsCollection/reps/regular-king-black.svg",
+    "class": "fa-chess-queen",
+    "description": "In a grand hall adorned with royal hues, the queen reigns with grace and strength, commanding admiration with her sharp mind and compassionate heart. A symbol of femininity's power, she guides her realm with diplomacy and cunning, inspiring reverence and awe. As the queen of hearts in life's intricate game, her reign is a testament to resilience and hope."
+  },
+  {
+    "id": "Regular-Knight",
+    "name": "Knight",
+    "collection": "Regular",
+    "collectionColor": "#800020",
+    "portrait": "chess/bothsCollection/Regular-Knight.png",
+    "whiteRep": "chess/bothsCollection/reps/regular-king-white.svg",
+    "blackRep": "chess/bothsCollection/reps/regular-king-black.svg",
+    "class": "fa-chess-knight",
+    "description": "In the midst of battle, the knight stands tall, embodying courage and honor. With each move akin to its L-shaped stride on the chessboard, he charges forth, armor glinting in the sun. Swift and agile, he navigates obstacles effortlessly, sword poised in defense of the realm. Loyalty to his liege and chivalric code drive his actions, epitomizing bravery and nobility. In life's game of conquest, the knight remains resolute, a symbol of unwavering valor."
+  },
+  {
+    "id": "Regular-Bishop",
+    "name": "Bishop",
+    "collection": "Regular",
+    "collectionColor": "#800020",
+    "portrait": "chess/bothsCollection/Regular-Bishop.png",
+    "whiteRep": "chess/bothsCollection/reps/regular-king-white.svg",
+    "blackRep": "chess/bothsCollection/reps/regular-king-black.svg",
+    "class": "fa-chess-bishop",
+    "description": "The bishop, a figure of divine strategy, moves diagonally across the board like a shadowy guardian of faith. With each step reminiscent of its unique angular path, he navigates the battlefield with purpose and precision. A master of cunning maneuvers, he embodies the power of foresight and manipulation. He stands at the corner ready to do your bidding!"
+  },
+  {
+    "id": "Regular-Rook",
+    "name": "Rook",
+    "collection": "Regular",
+    "collectionColor": "#800020",
+    "portrait": "chess/bothsCollection/Regular-Rook.png",
+    "whiteRep": "chess/bothsCollection/reps/regular-king-white.svg",
+    "blackRep": "chess/bothsCollection/reps/regular-king-black.svg",
+    "class": "fa-chess-rook",
+    "description": "The rook, a fortress of strength, moves in straight lines across the chessboard like a towering sentinel of protection. A symbol of stability and solidity, he dashes across the board with speed and resolve."
+  },
+  {
+    "id": "Regular-Pawn",
+    "name": "Pawn",
+    "collection": "Regular",
+    "collectionColor": "#800020",
+    "portrait": "chess/bothsCollection/Regular-Pawn.png",
+    "whiteRep": "chess/bothsCollection/reps/regular-king-white.svg",
+    "blackRep": "chess/bothsCollection/reps/regular-king-black.svg",
+    "class": "fa-chess-pawn",
+    "description": "The pawn, humble yet resilient, moves forward with determined steps, embodying the spirit of progress on the chessboard. Though he may start small, he possesses the potential for greatness. "
+  },
+  {
+    "id": "Tagmata-Augusta",
+    "name": "Augusta",
+    "collection": "Greek Tagmata",
+    "collectionColor": "#007BA7",
+    "portrait": "chess/bothsCollection/Tagmata-Augusta.png",
+    "whiteRep": "chess/bothsCollection/reps/regular-king-white.svg",
+    "blackRep": "chess/bothsCollection/reps/regular-king-black.svg",
+    "class": "fa-chess-queen",
+    "description": "In the ancient city of Athens, Queen Augusta reigns with the wisdom of her Greek heritage. Like Athena herself, she moves with grace across the chessboard of power, her strategies echoing the legendary tactics of her ancestors. With each calculated step, she embodies the strength and resilience of her city-state, guiding her realm with the strategic prowess of a true Athenian. As the queen of Athens, Augusta's rule is a testament to the enduring spirit of her people and the legacy of her illustrious lineage."
+  }
+]

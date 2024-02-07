@@ -76,6 +76,7 @@ const toastOptions: PluginOptions = {
 };
 app.use(Toast, toastOptions);
 
+
 // Pinia
 const pinia = createPinia();
 pinia.use(indexDbPlugin);
